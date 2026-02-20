@@ -1,3 +1,21 @@
+---
+
+# 🦅 Halcon App
+
+Aplicación web para **Halcon**, distribuidora de materiales de construcción.  
+Proyecto desarrollado con Laravel.
+
+## 🚀 Estado del proyecto
+🔧 Trabajando en una nueva página
+
+## 🔗 Prototipo en Figma
+👉 https://www.figma.com/design/zVmPvpwObtT3G7Bg4ZCByP/Untitled?node-id=0-1&t=e9Kq5bATkLaGVAFW-1
+
+## 📄 Documentación
+El documento se encuentra en:
+
+docs/Learning Outcome 1.pdf
+---
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
