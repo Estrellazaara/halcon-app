@@ -13,6 +13,8 @@ class Order extends Model
         'invoice_number',
         'customer_name',
         'customer_number',
+        'delivery_address',
+        'scheduled_delivery_date',
         'order_datetime',
         'notes',
         'status',
@@ -22,6 +24,7 @@ class Order extends Model
     // Attribute casting
     protected $casts = [
         'order_datetime' => 'datetime',
+        'scheduled_delivery_date' => 'datetime',
         'is_deleted' => 'boolean'
     ];
 
