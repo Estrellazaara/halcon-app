@@ -1,12 +1,39 @@
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Halcon - Sistema Interno</title>
-</head>
-<body style="font-family: Arial, sans-serif; padding: 40px;">
-  <h1>trabajando en una nueva pagina</h1>
-  <p>Proyecto: Halcon (distribuidor de materiales de construcción)</p>
-</body>
-</html>
+@extends('layouts.app')
+
+@section('content')
+    <h2>Track Order</h2>
+
+    <form action="{{ route('public.track') }}" method="GET">
+        <label>Invoice Number:</label><br>
+        <input type="text" name="invoice_number" required><br><br>
+
+        <button type="submit">Search</button>
+    </form>
+
+    @isset($order)
+        <hr>
+        <h3>Order Information</h3>
+        <p><strong>Invoice Number:</strong> {{ $order->invoice_number }}</p>
+        <p><strong>Customer:</strong> {{ $order->customer_name }}</p>
+        <p><strong>Status:</strong> {{ $order->status }}</p>
+        <p><strong>Date:</strong> {{ $order->order_datetime }}</p>
+
+        @if($order->status === 'Delivered')
+            <h4>Delivered Photo</h4>
+            @php
+                $deliveredPhoto = $order->photos->where('type', 'delivered')->first();
+            @endphp
+
+            @if($deliveredPhoto)
+                <img src="{{ asset('storage/' . $deliveredPhoto->photo_path) }}" width="300">
+            @else
+                <p>No delivered photo available.</p>
+            @endif
+        @endif
+
+        @if($order->status === 'In process')
+            <p><strong>Process:</strong> Order is currently being prepared.</p>
+            <p><strong>Updated:</strong> {{ $order->updated_at }}</p>
+        @endif
+    @endisset
+@endsection

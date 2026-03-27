@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\Role;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -11,7 +14,9 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+        $users = User::with('role')->orderBy('name')->get();
+
+        return view('users.index', compact('users'));
     }
 
     /**
@@ -19,7 +24,9 @@ class UserController extends Controller
      */
     public function create()
     {
-        //
+        $roles = Role::orderBy('name')->get();
+
+        return view('users.create', compact('roles'));
     }
 
     /**
@@ -27,7 +34,24 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6',
+            'role_id' => 'required|exists:roles,id',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role_id' => $request->role_id,
+            'is_active' => $request->has('is_active') ? $request->is_active : true,
+        ]);
+
+        return redirect()->route('users.index')
+            ->with('success', 'User created successfully.');
     }
 
     /**
@@ -35,7 +59,9 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $user = User::with('role')->findOrFail($id);
+
+        return view('users.show', compact('user'));
     }
 
     /**
@@ -43,7 +69,10 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $user = User::findOrFail($id);
+        $roles = Role::orderBy('name')->get();
+
+        return view('users.edit', compact('user', 'roles'));
     }
 
     /**
@@ -51,7 +80,30 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'role_id' => 'required|exists:roles,id',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'role_id' => $request->role_id,
+            'is_active' => $request->has('is_active') ? $request->is_active : false,
+        ];
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $user->update($data);
+
+        return redirect()->route('users.show', $user->id)
+            ->with('success', 'User updated successfully.');
     }
 
     /**
@@ -59,6 +111,13 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $user = User::findOrFail($id);
+
+        $user->update([
+            'is_active' => false
+        ]);
+
+        return redirect()->route('users.index')
+            ->with('success', 'User deactivated successfully.');
     }
 }

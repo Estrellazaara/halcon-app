@@ -36,7 +36,7 @@ class OrderPhoto extends Model
      */
     public function uploadPhoto($file): void
     {
-        $path = $file->store('orders');
+        $path = $file->store('orders', 'public');
         $this->update(['photo_path' => $path]);
     }
 }
