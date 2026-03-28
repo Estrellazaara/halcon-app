@@ -33,6 +33,10 @@ class OrderPhotoController extends Controller
      */
     public function store(Request $request)
     {
+        if(!auth()->user() || !auth()->user()->hasRole('Route')){
+            abort(403, 'No autorizado');
+        }
+
         $request->validate([
             'order_id' => 'required|exists:orders,id',
             'type' => 'required|in:loaded,delivered',

@@ -11,7 +11,9 @@ class OrderController extends Controller
      */
     public function index()
     {
-        //
+        $orders = Order::where('is_deleted', false)->get();
+
+        return view('orders.index', compact('orders'));
     }
 
     /**
@@ -19,7 +21,7 @@ class OrderController extends Controller
      */
     public function create()
     {
-        //
+        return view('orders.create');
     }
 
     /**
@@ -27,7 +29,9 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        if(!auth()->user() || !auth()->user()->hasRole('Sales')){
+            abort(403, 'No autorizado');
+        }
     }
 
     /**
@@ -35,7 +39,8 @@ class OrderController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $order = Order::findOrFail($id);
+        return view('orders.show', compact('order'));
     }
 
     /**
@@ -43,15 +48,22 @@ class OrderController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $order = Order::findOrFail($id);
+        return view('orders.edit', compact('order'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Order $order)
     {
-        //
+        if(!auth()->user() || !auth()->user()->hasRole('Warehouse')){
+            abort(403, 'No autorizado');
+        }
+
+        $order->update($request->all());
+
+        return redirect()->route('orders.index');
     }
 
     /**
@@ -59,6 +71,9 @@ class OrderController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $order = Order::findOrFail($id);
+        $order->update(['is_deleted' => true]);
+
+        return redirect()->route('orders.index');
     }
 }

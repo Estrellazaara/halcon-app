@@ -11,7 +11,10 @@
 
     <br>
 
-    <a href="{{ route('orders.create') }}">Create Order</a>
+    {{-- Crear pedido → SOLO Sales --}}
+    @if(auth()->check() && auth()->user()->hasRole('Sales'))
+        <a href="{{ route('orders.create') }}">Create Order</a>
+    @endif
 
     <br><br>
 
@@ -38,7 +41,29 @@
                     <td>{{ $order->status }}</td>
                     <td>{{ $order->order_datetime }}</td>
                     <td>
-                        <a href="{{ route('orders.show', $order->id) }}">View details</a>
+
+                        {{-- Ver → TODOS --}}
+                        <a href="{{ route('orders.show', $order->id) }}">View</a>
+
+                        {{-- Editar → SOLO Admin --}}
+                        @if(auth()->check() && auth()->user()->hasRole('Admin'))
+                            | <a href="{{ route('orders.edit', $order->id) }}">Edit</a>
+                        @endif
+
+                        {{-- Eliminar → SOLO Admin --}}
+                        @if(auth()->check() && auth()->user()->hasRole('Admin'))
+                            | <form action="{{ route('orders.destroy', $order->id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit">Delete</button>
+                            </form>
+                        @endif
+
+                        {{-- Subir foto → SOLO Route --}}
+                        @if(auth()->check() && auth()->user()->hasRole('Route'))
+                            | <a href="{{ route('order-photos.create') }}">Upload Photo</a>
+                        @endif
+
                     </td>
                 </tr>
             @endforeach
