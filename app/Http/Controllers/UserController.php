@@ -38,6 +38,8 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
+            'fiscal_data' => 'nullable|string',
+            'delivery_address' => 'nullable|string',
             'role_id' => 'required|exists:roles,id',
             'is_active' => 'nullable|boolean',
         ]);
@@ -46,6 +48,8 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'fiscal_data' => $request->fiscal_data,
+            'delivery_address' => $request->delivery_address,
             'role_id' => $request->role_id,
             'is_active' => $request->has('is_active') ? $request->is_active : true,
         ]);
@@ -85,6 +89,8 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
+            'fiscal_data' => 'nullable|string',
+            'delivery_address' => 'nullable|string',
             'role_id' => 'required|exists:roles,id',
             'is_active' => 'nullable|boolean',
         ]);
@@ -92,6 +98,8 @@ class UserController extends Controller
         $data = [
             'name' => $request->name,
             'email' => $request->email,
+            'fiscal_data' => $request->fiscal_data,
+            'delivery_address' => $request->delivery_address,
             'role_id' => $request->role_id,
             'is_active' => $request->has('is_active') ? $request->is_active : false,
         ];

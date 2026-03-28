@@ -9,12 +9,6 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 
-/*
-|--------------------------------------------------------------------------
-| Public Routes
-|--------------------------------------------------------------------------
-*/
-
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
@@ -33,21 +27,9 @@ Route::get('/track-order', function () {
     return view('welcome', compact('order'));
 })->name('public.track');
 
-/*
-|--------------------------------------------------------------------------
-| Dashboard
-|--------------------------------------------------------------------------
-*/
-
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->name('dashboard');
-
-/*
-|--------------------------------------------------------------------------
-| Resource Routes
-|--------------------------------------------------------------------------
-*/
 
 Route::resource('users', UserController::class);
 Route::resource('roles', RoleController::class);
@@ -55,12 +37,6 @@ Route::resource('products', ProductController::class);
 Route::resource('orders', OrderController::class);
 Route::resource('order-items', OrderItemController::class);
 Route::resource('order-photos', OrderPhotoController::class);
-
-/*
-|--------------------------------------------------------------------------
-| Archived Orders
-|--------------------------------------------------------------------------
-*/
 
 Route::get('/orders-archived', function () {
     $orders = Order::where('is_deleted', true)
