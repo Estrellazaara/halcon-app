@@ -20,6 +20,10 @@
                 <td>{{ $product->description }}</td>
             </tr>
             <tr>
+                <th>Price</th>
+                <td>${{ number_format($product->price, 2) }}</td>
+            </tr>
+            <tr>
                 <th>Current Stock</th>
                 <td>{{ $product->current_stock }}</td>
             </tr>

@@ -21,6 +21,7 @@
                 <th>ID</th>
                 <th>Name</th>
                 <th>Description</th>
+                <th>Price</th>
                 <th>Current Stock</th>
                 <th>Minimum Stock</th>
                 <th>Actions</th>
@@ -33,6 +34,7 @@
                     <td>{{ $product->id }}</td>
                     <td>{{ $product->name }}</td>
                     <td>{{ $product->description }}</td>
+                    <td>${{ number_format($product->price, 2) }}</td>
                     <td>{{ $product->current_stock }}</td>
                     <td>{{ $product->minimum_stock }}</td>
                     <td>

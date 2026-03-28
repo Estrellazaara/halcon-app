@@ -35,6 +35,7 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'current_stock' => 'required|integer|min:0',
             'minimum_stock' => 'required|integer|min:0',
+            'price' => 'required|numeric|min:0',
         ]);
 
         Product::create([
@@ -42,6 +43,7 @@ class ProductController extends Controller
             'description' => $request->description,
             'current_stock' => $request->current_stock,
             'minimum_stock' => $request->minimum_stock,
+            'price' => $request->price,
         ]);
 
         return redirect()->route('products.index')
@@ -80,6 +82,7 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'current_stock' => 'required|integer|min:0',
             'minimum_stock' => 'required|integer|min:0',
+            'price' => 'required|numeric|min:0',
         ]);
 
         $product->update([
@@ -87,6 +90,7 @@ class ProductController extends Controller
             'description' => $request->description,
             'current_stock' => $request->current_stock,
             'minimum_stock' => $request->minimum_stock,
+            'price' => $request->price,
         ]);
 
         return redirect()->route('products.show', $product->id)

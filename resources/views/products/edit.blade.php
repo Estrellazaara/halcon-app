@@ -18,6 +18,10 @@
         <input type="text" name="description" value="{{ $product->description }}" />
         <br><br>
 
+        <label>Price:</label>
+        <input type="number" name="price" step="0.01" min="0" value="{{ $product->price }}" />
+        <br><br>
+
         <label>Current Stock:</label>
         <input type="number" name="current_stock" value="{{ $product->current_stock }}" />
         <br><br>

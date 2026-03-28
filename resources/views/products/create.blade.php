@@ -20,6 +20,10 @@
     <input type="text" name="description" />
     <br><br>
 
+    <label>Price *</label>
+    <input type="number" name="price" step="0.01" min="0" />
+    <br><br>
+
     <label>Current Stock *</label>
     <input type="number" name="current_stock" />
     <br><br>
