@@ -24,10 +24,6 @@
     <input type="text" name="customer_number" />
     <br><br>
 
-    <label>Fiscal Data</label>
-    <input type="text" name="fiscal_data" />
-    <br><br>
-
     <label>Delivery Address *</label>
     <input type="text" name="delivery_address" />
     <br><br>

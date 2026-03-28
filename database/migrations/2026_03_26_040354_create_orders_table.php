@@ -16,11 +16,11 @@ return new class extends Migration
             $table->string('invoice_number', 20);
             $table->string('customer_name', 100);
             $table->string('customer_number', 20);
-            $table->dateTime('order_datetime');
+            $table->string('delivery_address'); // agregamos delivery_address
+            $table->dateTime('order_datetime')->nullable(); // opcional si quieres permitir vacío
             $table->text('notes')->nullable();
-            $table->enum('status', ['Ordered', 'In process', 'In route','Delivered',]);
+            $table->enum('status', ['Ordered', 'In process', 'In route', 'Delivered']);
             $table->boolean('is_deleted')->default(false);
-            $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
         });
     }

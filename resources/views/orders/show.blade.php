@@ -24,10 +24,6 @@
                 <td>{{ $order->customer_number }}</td>
             </tr>
             <tr>
-                <th>Fiscal Data</th>
-                <td>{{ $order->fiscal_data }}</td>
-            </tr>
-            <tr>
                 <th>Delivery Address</th>
                 <td>{{ $order->delivery_address }}</td>
             </tr>

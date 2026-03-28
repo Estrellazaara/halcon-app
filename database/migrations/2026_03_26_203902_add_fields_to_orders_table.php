@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->text('delivery_address')->after('customer_number');
             $table->dateTime('scheduled_delivery_date')->nullable();
         });
     }

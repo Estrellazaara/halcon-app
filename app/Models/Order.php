@@ -13,14 +13,12 @@ class Order extends Model
         'invoice_number',
         'customer_name',
         'customer_number',
-        'fiscal_data',
         'delivery_address',
         'scheduled_delivery_date',
         'order_datetime',
         'notes',
         'status',
         'is_deleted',
-        'created_by'
     ];
 
     // Attribute casting

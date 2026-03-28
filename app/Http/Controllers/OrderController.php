@@ -30,9 +30,21 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        if(!auth()->user() || !auth()->user()->hasRole('Sales')){
-            abort(403, 'No autorizado');
-        }
+
+        // Guardar en la base de datos
+        Order::create([
+            'invoice_number' => $request->invoice_number,
+            'customer_name' => $request->customer_name,
+            'customer_number' => $request->customer_number,
+            'delivery_address' => $request->delivery_address,
+            'order_datetime' => $request->order_datetime,
+            'notes' => $request->notes,
+            'status' => $request->status,
+            'is_deleted' => false,
+        ]);
+
+        // Redirigir al index
+        return redirect()->route('orders.index');
     }
 
     /**
@@ -58,13 +70,18 @@ class OrderController extends Controller
      */
     public function update(Request $request, Order $order)
     {
-        if(!auth()->user() || !auth()->user()->hasRole('Warehouse')){
-            abort(403, 'No autorizado');
-        }
 
-        $order->update($request->all());
+        $order->update($request->only([
+            'invoice_number',
+            'customer_name',
+            'customer_number',
+            'delivery_address',
+            'order_datetime',
+            'notes',
+            'status',
+        ]));
 
-        return redirect()->route('orders.index');
+        return redirect()->route('orders.index')->with('success', 'Order updated successfully');
     }
 
     /**
@@ -73,8 +90,13 @@ class OrderController extends Controller
     public function destroy(string $id)
     {
         $order = Order::findOrFail($id);
-        $order->update(['is_deleted' => true]);
 
-        return redirect()->route('orders.index');
+        $order->items()->delete();
+        $order->photos()->delete();
+
+        $order->delete();
+
+
+        return redirect()->route('orders.index')->with('success', 'Order deleted successfully');
     }
 }

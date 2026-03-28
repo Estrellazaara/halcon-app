@@ -22,10 +22,6 @@
         <input type="text" name="customer_number" value="{{ $order->customer_number }}" />
         <br><br>
 
-        <label>Fiscal Data:</label>
-        <input type="text" name="fiscal_data" value="{{ $order->fiscal_data }}" />
-        <br><br>
-
         <label>Delivery Address:</label>
         <input type="text" name="delivery_address" value="{{ $order->delivery_address }}" />
         <br><br>
