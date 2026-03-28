@@ -16,7 +16,7 @@
 
     </form>
 
-    @if($order)
+    @isset($order)
         <hr>
         <h3>Order Information</h3>
 
@@ -42,7 +42,7 @@
         @if($order->status === 'In process')
             <p><strong>Process:</strong> Order is currently being prepared.</p>
             <p><strong>Updated:</strong> {{ $order->updated_at }}</p>
-        @endif
+        @endisset
 
     @elseif(request('invoice_number'))
         <hr>

@@ -22,7 +22,7 @@ Route::get('/', function () {
 Route::get('/track-order', function () {
     $order = null;
 
-    if (request('invoice_number') && request('customer_number')) {
+    if (request('invoice_number')) {
         $order = Order::with('photos')
             ->where('invoice_number', request('invoice_number'))
             ->where('customer_number', request('customer_number'))

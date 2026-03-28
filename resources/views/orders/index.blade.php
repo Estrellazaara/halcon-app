@@ -11,10 +11,7 @@
 
     <br>
 
-    {{-- Crear pedido → SOLO Sales --}}
-    @if(auth()->check() && auth()->user()->hasRole('Sales'))
-        <a href="{{ route('orders.create') }}">Create Order</a>
-    @endif
+    <a href="{{ route('orders.create') }}">Create Order</a>
 
     <br><br>
 
@@ -43,7 +40,7 @@
                     <td>
 
                         {{-- Ver → TODOS --}}
-                        <a href="{{ route('orders.show', $order->id) }}">View</a>
+                        <a href="{{ route('orders.show', $order->id) }}">View details</a>
 
                         {{-- Editar → SOLO Admin --}}
                         @if(auth()->check() && auth()->user()->hasRole('Admin'))
