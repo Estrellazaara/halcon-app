@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Order;
 
+// Cambios que realice solo para Order 
 class OrderController extends Controller
 {
     /**
