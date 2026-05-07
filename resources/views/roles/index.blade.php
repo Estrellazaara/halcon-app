@@ -1,21 +1,26 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'Laravel') }}</title>
-</head>
-<body>
+@extends('layouts.app')
 
-    <h1>All Roles</h1>
+@section('content')
+<div class="py-12 bg-white min-h-screen card-panel">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="rounded-[32px] bg-slate-900 shadow-xl border border-slate-200 overflow-hidden">
+            <div class="bg-slate-950 border-b border-slate-800 px-8 py-8">
+                <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <p class="text-sm uppercase tracking-[0.3em] text-sky-400">Panel Administrativo</p>
+                        <h1 class="mt-3 text-3xl font-semibold text-white">All Roles</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="p-8 bg-slate-900">
+                <div class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm card-panel">
+<br>
 
-    <br>
-
-    <a href="{{ route('roles.create') }}">Create Role</a>
+    <a href="{{ route('roles.create') }}" class="btn-primary">Create Role</a>
 
     <br><br>
 
-    <table border="1" cellpadding="10">
+    <table class="panel-table">
         <thead>
             <tr>
                 <th>ID</th>
@@ -30,12 +35,15 @@
                     <td>{{ $role->id }}</td>
                     <td>{{ $role->name }}</td>
                     <td>
-                        <a href="{{ route('roles.show', $role->id) }}">View details</a>
+                        <a href="{{ route('roles.show', $role->id) }}" class="page-action-link">View details</a>
                     </td>
                 </tr>
             @endforeach
         </tbody>
     </table>
-
-</body>
-</html>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

@@ -31,8 +31,16 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'invoice_number' => 'required|string|max:20|unique:orders,invoice_number',
+            'customer_name' => 'required|string|max:100',
+            'customer_number' => 'required|string|max:20|unique:orders,customer_number',
+            'delivery_address' => 'required|string|max:200',
+            'order_datetime' => 'required|date',
+            'notes' => 'nullable|string|max:1000',
+            'status' => 'nullable|in:Ordered,In process,In route,Delivered',
+        ]);
 
-        // Guardar en la base de datos
         Order::create([
             'invoice_number' => $request->invoice_number,
             'customer_name' => $request->customer_name,
@@ -40,11 +48,10 @@ class OrderController extends Controller
             'delivery_address' => $request->delivery_address,
             'order_datetime' => $request->order_datetime,
             'notes' => $request->notes,
-            'status' => $request->status,
+            'status' => $request->status ?? 'Ordered',
             'is_deleted' => false,
         ]);
 
-        // Redirigir al index
         return redirect()->route('orders.index');
     }
 

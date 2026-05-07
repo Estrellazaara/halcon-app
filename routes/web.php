@@ -8,6 +8,7 @@ use App\Http\Controllers\OrderPhotoController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     return view('welcome');
@@ -27,28 +28,82 @@ Route::get('/track-order', function () {
     return view('welcome', compact('order'));
 })->name('public.track');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
+// Authentication Routes
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login')->middleware('guest');
 
-Route::resource('users', UserController::class);
-Route::resource('roles', RoleController::class);
-Route::resource('products', ProductController::class);
-Route::resource('orders', OrderController::class);
-Route::resource('order-items', OrderItemController::class);
-Route::resource('order-photos', OrderPhotoController::class);
+Route::post('/login', function (Illuminate\Http\Request $request) {
+    $credentials = $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
 
-Route::get('/orders-archived', function () {
-    $orders = Order::where('is_deleted', true)
-        ->orderBy('created_at', 'desc')
-        ->get();
+    if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        $user = Auth::user();
+        if (!$user->is_active) {
+            Auth::logout();
+            return back()->withErrors([
+                'email' => 'Tu cuenta está desactivada.',
+            ]);
+        }
+        $request->session()->regenerate();
+        return redirect()->intended('/dashboard');
+    }
 
-    return view('orders.archived', compact('orders'));
-})->name('orders.archived');
+    return back()->withErrors([
+        'email' => 'The provided credentials do not match our records.',
+    ]);
+})->name('login.store')->middleware('guest');
 
-Route::patch('/orders/{id}/restore', function ($id) {
-    $order = Order::findOrFail($id);
-    $order->update(['is_deleted' => false]);
+Route::post('/logout', function (Illuminate\Http\Request $request) {
+    Auth::logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+    return redirect('/');
+})->name('logout');
 
-    return redirect()->route('orders.archived');
-})->name('orders.restore');
+// Protected routes
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
+    // Admin only routes
+    Route::middleware('role:Admin')->group(function () {
+        Route::resource('users', UserController::class);
+        Route::resource('roles', RoleController::class);
+        Route::get('/orders-archived', function () {
+            $orders = Order::where('is_deleted', true)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return view('orders.archived', compact('orders'));
+        })->name('orders.archived');
+
+        Route::patch('/orders/{id}/restore', function ($id) {
+            $order = Order::findOrFail($id);
+            $order->update(['is_deleted' => false]);
+
+            return redirect()->route('orders.archived');
+        })->name('orders.restore');
+    });
+
+    // Sales, Warehouse and Route can manage orders
+    Route::middleware('role:Sales,Warehouse,Route')->group(function () {
+        Route::resource('orders', OrderController::class);
+    });
+
+    // Products are available to Sales, Purchasing and Warehouse
+    Route::middleware('role:Sales,Purchasing,Warehouse')->group(function () {
+        Route::resource('products', ProductController::class);
+    });
+
+    // Order items can be managed by Sales and Warehouse
+    Route::middleware('role:Sales,Warehouse')->group(function () {
+        Route::resource('order-items', OrderItemController::class);
+    });
+
+    // Only Route and Admin can manage order photos
+    Route::resource('order-photos', OrderPhotoController::class)->middleware('role:Route');
+});

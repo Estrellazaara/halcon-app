@@ -1,15 +1,20 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'Laravel') }}</title>
-</head>
-<body>
+@extends('layouts.app')
 
-    <h1>Order Item Detail</h1>
-
-    <table border="1" cellpadding="10">
+@section('content')
+<div class="py-12 bg-white min-h-screen card-panel">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="rounded-[32px] bg-slate-900 shadow-xl border border-slate-200 overflow-hidden">
+            <div class="bg-slate-950 border-b border-slate-800 px-8 py-8">
+                <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <p class="text-sm uppercase tracking-[0.3em] text-sky-400">Panel Administrativo</p>
+                        <h1 class="mt-3 text-3xl font-semibold text-white">Order Item Detail</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="p-8 bg-slate-900">
+                <div class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm card-panel">
+<table class="panel-table">
         <tbody>
             <tr>
                 <th>ID</th>
@@ -37,13 +42,16 @@
     <br>
     <a href="{{ route('order-items.edit', $orderItem->id) }}">Edit Order Item</a>
     <br>
-    <a href="{{ route('order-items.index') }}">Back to Order Items</a>
+    <a href="{{ route('order-items.index') }}" class="btn-secondary">Back to Order Items</a>
 
     <form action="{{ route('order-items.destroy', $orderItem->id) }}" method="POST">
         @csrf
         @method('delete')
         <button type="submit">Delete Order Item</button>
     </form>
-
-</body>
-</html>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
