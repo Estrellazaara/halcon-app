@@ -153,4 +153,4 @@ halcon-app/
 
 ## Autores
 
-Proyecto escolar desarrollado por **Equipo 3**
+Proyecto desarrollado por **Equipo 3**
