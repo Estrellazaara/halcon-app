@@ -95,6 +95,12 @@ Route::middleware('auth')->group(function () {
         Route::resource('orders', OrderController::class);
     });
 
+    // Subida de fotos de evidencia — solo Ruta (CU-13)
+    Route::middleware('role:Route')->group(function () {
+        Route::get('/orders/{id}/upload-photos',  [OrderController::class, 'showUploadPhotos'])->name('orders.upload-photos.form');
+        Route::post('/orders/{id}/upload-photos', [OrderController::class, 'uploadPhotos'])->name('orders.upload-photos');
+    });
+
     // Products are available to Sales, Purchasing and Warehouse
     Route::middleware('role:Sales,Purchasing,Warehouse')->group(function () {
         Route::resource('products', ProductController::class);

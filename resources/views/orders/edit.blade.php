@@ -1,169 +1,244 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="py-12 bg-white min-h-screen card-panel">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="rounded-[32px] bg-slate-900 shadow-xl border border-slate-200 overflow-hidden">
 
-            <div class="bg-slate-950 border-b border-slate-800 px-8 py-8">
-                <p class="text-sm uppercase tracking-[0.3em] text-sky-400">Panel Administrativo</p>
-                <h1 class="mt-3 text-3xl font-semibold text-white">Editar Pedido</h1>
-            </div>
+@php
+$statusFlow = [
+    'Ordered'    => ['next'=>'In process', 'label'=>'Ordenado',   'nextLabel'=>'En proceso', 'color'=>'#f59e0b', 'icon'=>'fa-gear'],
+    'In process' => ['next'=>'In route',   'label'=>'En proceso', 'nextLabel'=>'En ruta',    'color'=>'#8b5cf6', 'icon'=>'fa-truck'],
+    'In route'   => ['next'=>'Delivered',  'label'=>'En ruta',    'nextLabel'=>'Entregado',  'color'=>'#10b981', 'icon'=>'fa-circle-check'],
+    'Delivered'  => ['next'=>null,         'label'=>'Entregado',  'nextLabel'=>null,         'color'=>'#10b981', 'icon'=>null],
+];
 
-            <div class="p-8 bg-slate-900">
-                <div class="rounded-[28px] border border-slate-200 bg-white p-8 shadow-sm card-panel">
+$statusOrder  = ['Ordered', 'In process', 'In route', 'Delivered'];
+$statusLabels = ['Ordenado', 'En proceso', 'En ruta', 'Entregado'];
+$statusIcons  = ['fa-box', 'fa-gear', 'fa-truck', 'fa-circle-check'];
+$statusColors = ['#3b82f6', '#f59e0b', '#8b5cf6', '#10b981'];
 
-                    {{-- Mensajes de error de validación --}}
-                    @if ($errors->any())
-                        <div class="mb-6 rounded-2xl border border-red-300 bg-red-50 p-4 text-sm text-red-700">
-                            <p class="font-semibold mb-2">Por favor corrige los siguientes errores:</p>
-                            <ul class="list-disc pl-5 space-y-1">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+$currentIdx   = array_search($order->status, $statusOrder);
+$flow         = $statusFlow[$order->status] ?? null;
+@endphp
 
-                    <form action="{{ route('orders.update', $order->id) }}" method="POST">
-                        @csrf
-                        @method('PUT')
+<style>
+.tl-step { display:flex; flex-direction:column; align-items:center; flex:1; position:relative; }
+.tl-step:not(:last-child)::after {
+    content:''; position:absolute;
+    top:19px; left:calc(50% + 22px);
+    width:calc(100% - 44px); height:2px;
+    background:#1e3a8a;
+}
+.tl-step.done:not(:last-child)::after  { background:#10b981; }
+.tl-step.active:not(:last-child)::after { background:linear-gradient(90deg,#3b82f6,#1e3a8a); }
+.tl-dot {
+    width:38px; height:38px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    border:2px solid #1e3a8a; background:#0d1b4b; color:#3d5a99;
+    font-size:14px; transition:all 0.3s; position:relative; z-index:1;
+}
+.tl-step.done  .tl-dot { background:#10b981; border-color:#10b981; color:#fff; }
+.tl-step.active .tl-dot {
+    background:#1e40af; border-color:#3b82f6; color:#fff;
+    box-shadow:0 0 0 4px rgba(59,130,246,0.3);
+    animation:pulseGlow 2s infinite;
+}
+.tl-label { margin-top:8px; font-size:10px; font-weight:700; text-align:center;
+    text-transform:uppercase; letter-spacing:0.06em; color:#3d5a99; }
+.tl-step.done   .tl-label  { color:#10b981; }
+.tl-step.active .tl-label  { color:#3b82f6; }
+</style>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div style="max-width:900px; margin:0 auto; padding:0 24px;">
 
-                            {{-- Número de factura (no editable, fue generado automáticamente) --}}
-                            <div>
-                                <label class="block text-sm font-medium text-slate-600 mb-2">Número de Factura</label>
-                                <input
-                                    type="text"
-                                    value="{{ $order->invoice_number }}"
-                                    readonly
-                                    class="w-full rounded-xl border border-slate-200 px-4 py-4 bg-slate-100 text-slate-500 cursor-not-allowed">
-                            </div>
-
-                            {{-- Nombre del cliente --}}
-                            <div>
-                                <label class="block text-sm font-medium text-slate-600 mb-2">Nombre / Razón Social *</label>
-                                <input
-                                    type="text"
-                                    name="customer_name"
-                                    value="{{ old('customer_name', $order->customer_name) }}"
-                                    required
-                                    class="w-full rounded-xl border border-slate-300 px-4 py-4 shadow-sm @error('customer_name') border-red-400 @enderror">
-                                @error('customer_name')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            {{-- Número de cliente --}}
-                            <div>
-                                <label class="block text-sm font-medium text-slate-600 mb-2">Número de Cliente *</label>
-                                <input
-                                    type="text"
-                                    name="customer_number"
-                                    value="{{ old('customer_number', $order->customer_number) }}"
-                                    required
-                                    class="w-full rounded-xl border border-slate-300 px-4 py-4 shadow-sm @error('customer_number') border-red-400 @enderror">
-                                @error('customer_number')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            {{-- Dirección de entrega --}}
-                            <div>
-                                <label class="block text-sm font-medium text-slate-600 mb-2">Dirección de Entrega *</label>
-                                <input
-                                    type="text"
-                                    name="delivery_address"
-                                    value="{{ old('delivery_address', $order->delivery_address) }}"
-                                    required
-                                    class="w-full rounded-xl border border-slate-300 px-4 py-4 shadow-sm @error('delivery_address') border-red-400 @enderror">
-                                @error('delivery_address')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            {{-- Fecha del pedido --}}
-                            <div>
-                                <label class="block text-sm font-medium text-slate-600 mb-2">Fecha y Hora *</label>
-                                <input
-                                    type="datetime-local"
-                                    name="order_datetime"
-                                    value="{{ old('order_datetime', \Carbon\Carbon::parse($order->order_datetime)->format('Y-m-d\TH:i')) }}"
-                                    required
-                                    class="w-full rounded-xl border border-slate-300 px-4 py-4 shadow-sm @error('order_datetime') border-red-400 @enderror">
-                                @error('order_datetime')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            {{-- Estado: muestra solo la transición válida siguiente (CU-12) --}}
-                            <div>
-                                <label class="block text-sm font-medium text-slate-600 mb-2">Estado</label>
-
-                                @php
-                                    // Flujo de estados: solo se puede avanzar al siguiente
-                                    $flujo = [
-                                        'Ordered'    => 'In process',
-                                        'In process' => 'In route',
-                                        'In route'   => 'Delivered',
-                                        'Delivered'  => null,
-                                    ];
-                                    $siguiente = $flujo[$order->status] ?? null;
-                                @endphp
-
-                                <select
-                                    name="status"
-                                    class="w-full rounded-xl border border-slate-300 px-4 py-4 shadow-sm @error('status') border-red-400 @enderror">
-
-                                    {{-- Siempre muestra el estado actual --}}
-                                    <option value="{{ $order->status }}" selected>
-                                        {{ $order->status }} (actual)
-                                    </option>
-
-                                    {{-- Solo muestra el siguiente paso si existe --}}
-                                    @if($siguiente)
-                                        <option value="{{ $siguiente }}">
-                                            {{ $siguiente }} → siguiente paso
-                                        </option>
-                                    @endif
-
-                                </select>
-
-                                @error('status')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-
-                                @if(!$siguiente)
-                                    <p class="mt-1 text-xs text-slate-500">El pedido ya está en el estado final (Delivered).</p>
-                                @else
-                                    <p class="mt-1 text-xs text-slate-500">
-                                        Flujo: Ordered → In process → In route → Delivered
-                                    </p>
-                                @endif
-                            </div>
-
-                            {{-- Notas --}}
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-slate-600 mb-2">Notas</label>
-                                <textarea
-                                    name="notes"
-                                    rows="5"
-                                    class="w-full rounded-xl border border-slate-300 px-4 py-4 shadow-sm">{{ old('notes', $order->notes) }}</textarea>
-                            </div>
-
-                        </div>
-
-                        <div class="mt-8 flex gap-4 justify-center flex-wrap">
-                            <button type="submit" class="btn-primary">Guardar Cambios</button>
-                            <a href="{{ route('orders.show', $order->id) }}" class="btn-secondary">Cancelar</a>
-                        </div>
-
-                    </form>
-
-                </div>
-            </div>
+    <!-- ── HEADER ─────────────────────────────────────────────────────────── -->
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:16px;">
+        <div>
+            <h1 style="font-size:26px; font-weight:700; color:#f0f4ff; letter-spacing:-0.02em; margin:0 0 6px;">
+                <i class="fa-solid fa-pen-to-square" style="color:#3b82f6; margin-right:10px;"></i>
+                Editar Pedido
+            </h1>
+            <p style="font-size:15px; color:#93c5fd; margin:0;">
+                Factura:
+                <strong style="color:#f0f4ff;">{{ $order->invoice_number }}</strong>
+            </p>
         </div>
+        <a href="{{ route('orders.index') }}" class="btn-secondary">
+            <i class="fa-solid fa-arrow-left"></i> Volver
+        </a>
     </div>
+
+    <!-- ── TIMELINE DE ESTADOS ────────────────────────────────────────────── -->
+    <div class="hc-card" style="padding:24px; margin-bottom:24px;">
+        <p style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#93c5fd; margin:0 0 16px;">
+            <i class="fa-solid fa-route" style="margin-right:6px;"></i>Flujo del pedido
+        </p>
+        <div style="display:flex; align-items:flex-start;">
+            @foreach($statusOrder as $i => $st)
+                @php
+                    $cls = '';
+                    if ($i < $currentIdx)       $cls = 'done';
+                    elseif ($i === $currentIdx)  $cls = 'active';
+                @endphp
+                <div class="tl-step {{ $cls }}">
+                    <div class="tl-dot">
+                        @if($i < $currentIdx)
+                            <i class="fa-solid fa-check"></i>
+                        @else
+                            <i class="fa-solid {{ $statusIcons[$i] }}"></i>
+                        @endif
+                    </div>
+                    <span class="tl-label">{{ $statusLabels[$i] }}</span>
+                </div>
+            @endforeach
+        </div>
+
+        <!-- Botón de avance de estado (si no es el final) -->
+        @if($flow && $flow['next'])
+            <div style="margin-top:20px; padding:16px; background:rgba(59,130,246,0.07); border:1px solid rgba(59,130,246,0.2); border-radius:12px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <p style="font-size:13px; color:#93c5fd; margin:0 0 2px;">Siguiente paso disponible:</p>
+                    <p style="font-size:15px; font-weight:700; color:#f0f4ff; margin:0;">
+                        <i class="fa-solid {{ $flow['icon'] }}" style="color:{{ $flow['color'] }}; margin-right:8px;"></i>
+                        Cambiar a <strong style="color:{{ $flow['color'] }};">{{ $flow['nextLabel'] }}</strong>
+                    </p>
+                </div>
+                <form action="{{ route('orders.update', $order->id) }}" method="POST">
+                    @csrf @method('PUT')
+                    <!-- Se envían los mismos datos del pedido + el nuevo estado -->
+                    <input type="hidden" name="customer_name"    value="{{ $order->customer_name }}">
+                    <input type="hidden" name="customer_number"  value="{{ $order->customer_number }}">
+                    <input type="hidden" name="delivery_address" value="{{ $order->delivery_address }}">
+                    <input type="hidden" name="order_datetime"   value="{{ $order->order_datetime }}">
+                    <input type="hidden" name="notes"            value="{{ $order->notes }}">
+                    <input type="hidden" name="status"           value="{{ $flow['next'] }}">
+                    <button type="submit"
+                            style="background:linear-gradient(135deg,{{ $flow['color'] }}99,{{ $flow['color'] }});color:#fff;border:none;border-radius:12px;padding:12px 28px;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.3s;display:inline-flex;align-items:center;gap:8px;"
+                            onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 20px {{ $flow['color'] }}55'"
+                            onmouseout="this.style.transform='';this.style.boxShadow=''">
+                        <i class="fa-solid {{ $flow['icon'] }}"></i>
+                        Cambiar a {{ $flow['nextLabel'] }}
+                    </button>
+                </form>
+            </div>
+        @else
+            <div style="margin-top:16px; padding:12px 18px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:10px; font-size:14px; color:#10b981;">
+                <i class="fa-solid fa-circle-check" style="margin-right:8px;"></i>
+                Este pedido ya fue entregado. Estado final alcanzado.
+            </div>
+        @endif
+    </div>
+
+    <!-- ── FORMULARIO DATOS DEL PEDIDO ───────────────────────────────────── -->
+    <div class="hc-card" style="padding:32px;">
+        <p style="font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#93c5fd; margin:0 0 24px;">
+            <i class="fa-solid fa-file-lines" style="margin-right:6px;"></i>Datos del pedido
+        </p>
+
+        <!-- Errores de validación -->
+        @if($errors->any())
+            <div class="hc-alert-error" style="margin-bottom:20px;">
+                <p style="font-weight:700; margin:0 0 8px; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Corrige los siguientes errores:
+                </p>
+                <ul style="margin:0; padding-left:20px;">
+                    @foreach($errors->all() as $err)
+                        <li>{{ $err }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form action="{{ route('orders.update', $order->id) }}" method="POST">
+            @csrf @method('PUT')
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:20px;">
+
+                <!-- Número de factura (solo lectura) -->
+                <div>
+                    <label style="display:block; font-size:12px; font-weight:600; color:#93c5fd; margin-bottom:8px; letter-spacing:0.06em;">
+                        <i class="fa-solid fa-hashtag" style="margin-right:4px;"></i>NÚMERO DE FACTURA
+                    </label>
+                    <input type="text" value="{{ $order->invoice_number }}" readonly
+                           class="hc-input" style="opacity:0.5; cursor:not-allowed;">
+                </div>
+
+                <!-- Nombre del cliente -->
+                <div>
+                    <label style="display:block; font-size:12px; font-weight:600; color:#93c5fd; margin-bottom:8px; letter-spacing:0.06em;">
+                        <i class="fa-solid fa-user" style="margin-right:4px;"></i>NOMBRE / RAZÓN SOCIAL *
+                    </label>
+                    <input type="text" name="customer_name" required
+                           value="{{ old('customer_name', $order->customer_name) }}" class="hc-input">
+                    @error('customer_name')<p style="color:#ef4444; font-size:12px; margin:4px 0 0;">{{ $message }}</p>@enderror
+                </div>
+
+                <!-- Número de cliente -->
+                <div>
+                    <label style="display:block; font-size:12px; font-weight:600; color:#93c5fd; margin-bottom:8px; letter-spacing:0.06em;">
+                        <i class="fa-solid fa-id-card" style="margin-right:4px;"></i>NÚMERO DE CLIENTE *
+                    </label>
+                    <input type="text" name="customer_number" required
+                           value="{{ old('customer_number', $order->customer_number) }}" class="hc-input">
+                    @error('customer_number')<p style="color:#ef4444; font-size:12px; margin:4px 0 0;">{{ $message }}</p>@enderror
+                </div>
+
+                <!-- Dirección -->
+                <div>
+                    <label style="display:block; font-size:12px; font-weight:600; color:#93c5fd; margin-bottom:8px; letter-spacing:0.06em;">
+                        <i class="fa-solid fa-location-dot" style="margin-right:4px;"></i>DIRECCIÓN DE ENTREGA *
+                    </label>
+                    <input type="text" name="delivery_address" required
+                           value="{{ old('delivery_address', $order->delivery_address) }}" class="hc-input">
+                    @error('delivery_address')<p style="color:#ef4444; font-size:12px; margin:4px 0 0;">{{ $message }}</p>@enderror
+                </div>
+
+                <!-- Fecha y hora -->
+                <div>
+                    <label style="display:block; font-size:12px; font-weight:600; color:#93c5fd; margin-bottom:8px; letter-spacing:0.06em;">
+                        <i class="fa-solid fa-clock" style="margin-right:4px;"></i>FECHA Y HORA *
+                    </label>
+                    <input type="datetime-local" name="order_datetime" required
+                           value="{{ old('order_datetime', \Carbon\Carbon::parse($order->order_datetime)->format('Y-m-d\TH:i')) }}"
+                           class="hc-input">
+                    @error('order_datetime')<p style="color:#ef4444; font-size:12px; margin:4px 0 0;">{{ $message }}</p>@enderror
+                </div>
+
+                <!-- Estado (solo informativo, no se puede cambiar desde aquí) -->
+                <div>
+                    <label style="display:block; font-size:12px; font-weight:600; color:#93c5fd; margin-bottom:8px; letter-spacing:0.06em;">
+                        <i class="fa-solid fa-circle-dot" style="margin-right:4px;"></i>ESTADO ACTUAL
+                    </label>
+                    @php $sc = ['Ordered'=>['badge-ordered','Ordenado'],'In process'=>['badge-in-process','En proceso'],'In route'=>['badge-in-route','En ruta'],'Delivered'=>['badge-delivered','Entregado']][$order->status] ?? ['badge-archived','—']; @endphp
+                    <div class="hc-input" style="display:flex; align-items:center; opacity:0.7; cursor:not-allowed;">
+                        <span class="badge {{ $sc[0] }}">{{ $sc[1] }}</span>
+                        <span style="font-size:12px; color:#3d5a99; margin-left:10px;">Usa el botón de arriba para avanzar</span>
+                    </div>
+                    <!-- Campo oculto para no romper la validación del controlador -->
+                    <input type="hidden" name="status" value="{{ $order->status }}">
+                </div>
+
+                <!-- Notas (ancho completo) -->
+                <div style="grid-column: 1 / -1;">
+                    <label style="display:block; font-size:12px; font-weight:600; color:#93c5fd; margin-bottom:8px; letter-spacing:0.06em;">
+                        <i class="fa-solid fa-note-sticky" style="margin-right:4px;"></i>NOTAS
+                    </label>
+                    <textarea name="notes" rows="4" class="hc-input" style="resize:vertical;">{{ old('notes', $order->notes) }}</textarea>
+                </div>
+
+            </div>
+
+            <hr class="hc-divider">
+
+            <div style="display:flex; gap:14px; justify-content:flex-end; flex-wrap:wrap;">
+                <a href="{{ route('orders.show', $order->id) }}" class="btn-secondary">
+                    <i class="fa-solid fa-xmark"></i> Cancelar
+                </a>
+                <button type="submit" class="btn-primary">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar cambios
+                </button>
+            </div>
+
+        </form>
+    </div>
+
 </div>
 @endsection

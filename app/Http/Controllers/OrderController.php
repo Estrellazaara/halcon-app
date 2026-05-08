@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
@@ -157,6 +158,60 @@ class OrderController extends Controller
 
         return redirect()->route('orders.index')
             ->with('success', 'Pedido actualizado correctamente.');
+    }
+
+    /**
+     * Muestra el formulario de subida de fotos de evidencia.
+     * Solo accesible al rol Ruta (CU-13).
+     */
+    public function showUploadPhotos(string $id)
+    {
+        if (!Auth::user()->hasRole('Route') && !Auth::user()->hasRole('Admin')) {
+            abort(403, 'Solo el rol Ruta puede subir fotos de evidencia.');
+        }
+
+        $order = Order::findOrFail($id);
+
+        return view('orders.upload_photos', compact('order'));
+    }
+
+    /**
+     * Procesa y guarda las dos fotos de evidencia en el pedido.
+     * Guarda las rutas en orders.photo_loaded y orders.photo_delivered (CU-13).
+     */
+    public function uploadPhotos(Request $request, string $id)
+    {
+        if (!Auth::user()->hasRole('Route') && !Auth::user()->hasRole('Admin')) {
+            abort(403, 'Solo el rol Ruta puede subir fotos de evidencia.');
+        }
+
+        $order = Order::findOrFail($id);
+
+        $request->validate([
+            'photo_loaded'    => 'required|image|mimes:jpg,jpeg,png|max:5120',
+            'photo_delivered' => 'required|image|mimes:jpg,jpeg,png|max:5120',
+        ], [
+            'photo_loaded.required'    => 'La foto de unidad cargada es obligatoria.',
+            'photo_delivered.required' => 'La foto de material descargado es obligatoria.',
+            'photo_loaded.max'         => 'La foto de unidad cargada no puede superar 5 MB.',
+            'photo_delivered.max'      => 'La foto de material descargado no puede superar 5 MB.',
+        ]);
+
+        // Guardar foto 1 (unidad cargada)
+        $pathLoaded = $request->file('photo_loaded')
+            ->storeAs('evidencias', $id . '_cargada.' . $request->file('photo_loaded')->extension(), 'public');
+
+        // Guardar foto 2 (material descargado)
+        $pathDelivered = $request->file('photo_delivered')
+            ->storeAs('evidencias', $id . '_descargada.' . $request->file('photo_delivered')->extension(), 'public');
+
+        $order->update([
+            'photo_loaded'    => $pathLoaded,
+            'photo_delivered' => $pathDelivered,
+        ]);
+
+        return redirect()->route('orders.show', $order->id)
+            ->with('success', 'Fotos de evidencia subidas correctamente.');
     }
 
     /**

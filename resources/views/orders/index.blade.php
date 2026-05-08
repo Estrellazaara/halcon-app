@@ -1,150 +1,276 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="py-12 bg-white min-h-screen card-panel">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="rounded-[32px] bg-slate-900 shadow-xl border border-slate-200 overflow-hidden">
-            <div class="bg-slate-950 border-b border-slate-800 px-8 py-8">
-                <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <p class="text-sm uppercase tracking-[0.3em] text-sky-400">Panel Administrativo</p>
-                        <h1 class="mt-3 text-3xl font-semibold text-white">Pedidos</h1>
-                    </div>
-                    {{-- Solo Sales y Admin pueden crear pedidos (CU-06) --}}
-                    @if(auth()->user()->hasRole('Sales') || auth()->user()->hasRole('Admin'))
-                        <a href="{{ route('orders.create') }}" class="btn-primary">+ Crear Pedido</a>
-                    @endif
+
+@php
+/* Mapeo de estados a clases CSS y etiquetas en español */
+$statusMap = [
+    'Ordered'    => ['class'=>'badge-ordered',    'label'=>'Ordenado',   'icon'=>'fa-box'],
+    'In process' => ['class'=>'badge-in-process', 'label'=>'En proceso', 'icon'=>'fa-gear'],
+    'In route'   => ['class'=>'badge-in-route',   'label'=>'En ruta',    'icon'=>'fa-truck'],
+    'Delivered'  => ['class'=>'badge-delivered',  'label'=>'Entregado',  'icon'=>'fa-circle-check'],
+];
+@endphp
+
+<div style="max-width:1280px; margin:0 auto; padding:0 24px;">
+
+    <!-- ── HEADER ─────────────────────────────────────────────────────────── -->
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:16px;">
+        <div>
+            <h1 style="font-size:26px; font-weight:700; color:#f0f4ff; letter-spacing:-0.02em; margin:0 0 4px;">
+                <i class="fa-solid fa-boxes-stacked" style="color:#3b82f6; margin-right:10px;"></i>
+                Gestión de Pedidos
+            </h1>
+            <p style="font-size:13px; color:#93c5fd; margin:0;">
+                Total activos:
+                <span style="background:rgba(59,130,246,0.2); border:1px solid rgba(59,130,246,0.4); color:#3b82f6; border-radius:20px; padding:2px 10px; font-weight:700; font-size:12px; margin-left:4px;">
+                    {{ $orders->count() }}
+                </span>
+            </p>
+        </div>
+
+        @if(auth()->user()->hasRole('Sales') || auth()->user()->hasRole('Admin'))
+            <a href="{{ route('orders.create') }}" class="btn-primary">
+                <i class="fa-solid fa-plus"></i> Nuevo Pedido
+            </a>
+        @endif
+    </div>
+
+    <!-- ── ALERTA DE ÉXITO ────────────────────────────────────────────────── -->
+    @if(session('success'))
+        <div class="hc-alert-success" style="margin-bottom:20px; display:flex; align-items:center; gap:10px;">
+            <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
+        </div>
+    @endif
+
+    <!-- ── FILTROS DE BÚSQUEDA ────────────────────────────────────────────── -->
+    <div class="hc-card" style="padding:20px; margin-bottom:20px;">
+        <form method="GET" action="{{ route('orders.index') }}">
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px; align-items:end;">
+
+                <!-- Número de factura -->
+                <div>
+                    <label style="display:block; font-size:12px; font-weight:600; color:#93c5fd; margin-bottom:6px; letter-spacing:0.06em;">
+                        <i class="fa-solid fa-magnifying-glass" style="margin-right:4px;"></i> FACTURA
+                    </label>
+                    <input type="text" name="invoice_number" value="{{ request('invoice_number') }}"
+                           placeholder="HAL-000001" class="hc-input">
                 </div>
+
+                <!-- Número de cliente -->
+                <div>
+                    <label style="display:block; font-size:12px; font-weight:600; color:#93c5fd; margin-bottom:6px; letter-spacing:0.06em;">
+                        <i class="fa-solid fa-user" style="margin-right:4px;"></i> CLIENTE
+                    </label>
+                    <input type="text" name="customer_number" value="{{ request('customer_number') }}"
+                           placeholder="Núm. cliente" class="hc-input">
+                </div>
+
+                <!-- Fecha -->
+                <div>
+                    <label style="display:block; font-size:12px; font-weight:600; color:#93c5fd; margin-bottom:6px; letter-spacing:0.06em;">
+                        <i class="fa-solid fa-calendar" style="margin-right:4px;"></i> FECHA
+                    </label>
+                    <input type="date" name="order_date" value="{{ request('order_date') }}" class="hc-input">
+                </div>
+
+                <!-- Estado -->
+                <div>
+                    <label style="display:block; font-size:12px; font-weight:600; color:#93c5fd; margin-bottom:6px; letter-spacing:0.06em;">
+                        <i class="fa-solid fa-filter" style="margin-right:4px;"></i> ESTADO
+                    </label>
+                    <select name="status" class="hc-input">
+                        <option value="">— Todos —</option>
+                        <option value="Ordered"    {{ request('status')==='Ordered'    ?'selected':'' }}>Ordenado</option>
+                        <option value="In process" {{ request('status')==='In process' ?'selected':'' }}>En proceso</option>
+                        <option value="In route"   {{ request('status')==='In route'   ?'selected':'' }}>En ruta</option>
+                        <option value="Delivered"  {{ request('status')==='Delivered'  ?'selected':'' }}>Entregado</option>
+                    </select>
+                </div>
+
+                <!-- Botones -->
+                <div style="display:flex; gap:10px; align-items:flex-end;">
+                    <button type="submit" class="btn-primary btn-sm" style="flex:1; justify-content:center;">
+                        <i class="fa-solid fa-search"></i> Filtrar
+                    </button>
+                    <a href="{{ route('orders.index') }}" class="btn-secondary btn-sm" style="flex:1; justify-content:center;">
+                        <i class="fa-solid fa-xmark"></i> Limpiar
+                    </a>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+    <!-- ── TABLA DE PEDIDOS ───────────────────────────────────────────────── -->
+    <div class="hc-card" style="overflow:hidden; padding:0;">
+
+        @if($orders->isEmpty())
+            <!-- Estado vacío -->
+            <div style="text-align:center; padding:64px 24px;">
+                <div style="font-size:56px; color:#1e3a8a; margin-bottom:16px;">
+                    <i class="fa-solid fa-inbox"></i>
+                </div>
+                <p style="font-size:16px; font-weight:600; color:#93c5fd; margin:0 0 8px;">No hay pedidos</p>
+                <p style="font-size:14px; color:#3d5a99; margin:0 0 24px;">
+                    {{ request()->hasAny(['invoice_number','customer_number','order_date','status'])
+                        ? 'Ningún pedido coincide con los filtros aplicados.'
+                        : 'Aún no hay pedidos registrados en el sistema.' }}
+                </p>
+                @if(auth()->user()->hasRole('Sales') || auth()->user()->hasRole('Admin'))
+                    <a href="{{ route('orders.create') }}" class="btn-primary">
+                        <i class="fa-solid fa-plus"></i> Crear primer pedido
+                    </a>
+                @endif
             </div>
 
-            <div class="p-8 bg-slate-900">
-                <div class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm card-panel">
-
-                    {{-- Mensajes de éxito --}}
-                    @if(session('success'))
-                        <div class="mb-4 rounded-xl bg-green-50 border border-green-300 px-4 py-3 text-green-700 text-sm">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-
-                    {{-- ===== FILTROS DE BÚSQUEDA (CU-15) ===== --}}
-                    <form method="GET" action="{{ route('orders.index') }}" class="mb-6">
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-
-                            {{-- Filtro por número de factura --}}
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 mb-1">Número de Factura</label>
-                                <input
-                                    type="text"
-                                    name="invoice_number"
-                                    value="{{ request('invoice_number') }}"
-                                    placeholder="HAL-000001"
-                                    class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400">
-                            </div>
-
-                            {{-- Filtro por número de cliente --}}
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 mb-1">Número de Cliente</label>
-                                <input
-                                    type="text"
-                                    name="customer_number"
-                                    value="{{ request('customer_number') }}"
-                                    placeholder="CL-001"
-                                    class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400">
-                            </div>
-
-                            {{-- Filtro por fecha --}}
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 mb-1">Fecha del Pedido</label>
-                                <input
-                                    type="date"
-                                    name="order_date"
-                                    value="{{ request('order_date') }}"
-                                    class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400">
-                            </div>
-
-                            {{-- Filtro por estado --}}
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 mb-1">Estado</label>
-                                <select
-                                    name="status"
-                                    class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400">
-                                    <option value="">— Todos —</option>
-                                    <option value="Ordered"    {{ request('status') === 'Ordered'    ? 'selected' : '' }}>Ordered</option>
-                                    <option value="In process" {{ request('status') === 'In process' ? 'selected' : '' }}>In process</option>
-                                    <option value="In route"   {{ request('status') === 'In route'   ? 'selected' : '' }}>In route</option>
-                                    <option value="Delivered"  {{ request('status') === 'Delivered'  ? 'selected' : '' }}>Delivered</option>
-                                </select>
-                            </div>
-
-                        </div>
-
-                        <div class="mt-4 flex gap-3">
-                            <button type="submit" class="btn-primary text-sm">Buscar</button>
-                            <a href="{{ route('orders.index') }}" class="btn-secondary text-sm">Limpiar filtros</a>
-                        </div>
-                    </form>
-                    {{-- ===== FIN FILTROS ===== --}}
-
-                    <table class="panel-table">
-                        <thead>
+        @else
+            <div style="overflow-x:auto;">
+                <table class="hc-table">
+                    <thead>
+                        <tr>
+                            <th><i class="fa-solid fa-hashtag" style="margin-right:5px;"></i>Factura</th>
+                            <th><i class="fa-solid fa-user" style="margin-right:5px;"></i>Cliente</th>
+                            <th><i class="fa-solid fa-calendar" style="margin-right:5px;"></i>Fecha</th>
+                            <th><i class="fa-solid fa-location-dot" style="margin-right:5px;"></i>Dirección</th>
+                            <th><i class="fa-solid fa-circle-dot" style="margin-right:5px;"></i>Estado</th>
+                            <th style="text-align:center;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($orders as $order)
+                            @php
+                                $sc = $statusMap[$order->status] ?? ['class'=>'badge-archived','label'=>$order->status,'icon'=>'fa-circle'];
+                            @endphp
                             <tr>
-                                <th>ID</th>
-                                <th>Número de Factura</th>
-                                <th>Cliente</th>
-                                <th>Núm. Cliente</th>
-                                <th>Estado</th>
-                                <th>Fecha del Pedido</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($orders as $order)
-                                <tr>
-                                    <td>{{ $order->id }}</td>
-                                    <td>{{ $order->invoice_number }}</td>
-                                    <td>{{ $order->customer_name }}</td>
-                                    <td>{{ $order->customer_number }}</td>
-                                    <td>{{ $order->status }}</td>
-                                    <td>{{ $order->order_datetime?->format('d/m/Y H:i') }}</td>
-                                    <td>
-                                        {{-- Ver → TODOS los roles --}}
-                                        <a href="{{ route('orders.show', $order->id) }}" class="page-action-link">Ver</a>
+                                <td>
+                                    <span style="font-weight:700; color:#93c5fd; font-size:13px;">
+                                        {{ $order->invoice_number }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div style="font-weight:600; color:#f0f4ff;">{{ $order->customer_name }}</div>
+                                    <div style="font-size:12px; color:#3d5a99;">{{ $order->customer_number }}</div>
+                                </td>
+                                <td style="font-size:13px; white-space:nowrap; color:#93c5fd;">
+                                    {{ $order->order_datetime ? $order->order_datetime->format('d/m/Y') : '—' }}<br>
+                                    <span style="font-size:11px; color:#3d5a99;">
+                                        {{ $order->order_datetime ? $order->order_datetime->format('H:i') : '' }}
+                                    </span>
+                                </td>
+                                <td style="font-size:13px; color:#93c5fd; max-width:180px;">
+                                    {{ Str::limit($order->delivery_address, 45) }}
+                                </td>
+                                <td>
+                                    <span class="badge {{ $sc['class'] }}">
+                                        <i class="fa-solid {{ $sc['icon'] }}"></i>
+                                        {{ $sc['label'] }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div style="display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;">
 
-                                        {{-- Editar → Solo Admin (CU-12) --}}
+                                        <!-- Ver -->
+                                        <a href="{{ route('orders.show', $order->id) }}"
+                                           title="Ver detalle"
+                                           style="width:32px;height:32px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#3b82f6;transition:all 0.2s;"
+                                           onmouseover="this.style.background='rgba(59,130,246,0.3)'"
+                                           onmouseout="this.style.background='rgba(59,130,246,0.15)'">
+                                            <i class="fa-solid fa-eye" style="font-size:13px;"></i>
+                                        </a>
+
+                                        <!-- Editar (Admin) -->
                                         @if(auth()->user()->hasRole('Admin'))
-                                            | <a href="{{ route('orders.edit', $order->id) }}" class="page-action-link">Editar</a>
+                                            <a href="{{ route('orders.edit', $order->id) }}"
+                                               title="Editar"
+                                               style="width:32px;height:32px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#f59e0b;transition:all 0.2s;"
+                                               onmouseover="this.style.background='rgba(245,158,11,0.25)'"
+                                               onmouseout="this.style.background='rgba(245,158,11,0.12)'">
+                                                <i class="fa-solid fa-pen" style="font-size:13px;"></i>
+                                            </a>
                                         @endif
 
-                                        {{-- Archivar → Solo Admin (CU-16: eliminación lógica) --}}
-                                        @if(auth()->user()->hasRole('Admin'))
-                                            | <form action="{{ route('orders.destroy', $order->id) }}" method="POST" style="display:inline;"
-                                                onsubmit="return confirm('¿Archivar este pedido? Podrás restaurarlo después.')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="page-action-link text-amber-600">Archivar</button>
-                                            </form>
-                                        @endif
-
-                                        {{-- Subir foto → Solo Ruta (CU-13) --}}
+                                        <!-- Subir fotos (Ruta) -->
                                         @if(auth()->user()->hasRole('Route'))
-                                            | <a href="{{ route('order-photos.create') }}?order_id={{ $order->id }}" class="page-action-link">Subir Foto</a>
+                                            <a href="{{ route('orders.upload-photos.form', $order->id) }}"
+                                               title="Subir fotos"
+                                               style="width:32px;height:32px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#8b5cf6;transition:all 0.2s;"
+                                               onmouseover="this.style.background='rgba(139,92,246,0.25)'"
+                                               onmouseout="this.style.background='rgba(139,92,246,0.12)'">
+                                                <i class="fa-solid fa-camera" style="font-size:13px;"></i>
+                                            </a>
                                         @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="text-center text-slate-500 py-6">
-                                        No se encontraron pedidos con esos filtros.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
 
-                </div>
+                                        <!-- Archivar (Admin) -->
+                                        @if(auth()->user()->hasRole('Admin'))
+                                            <button type="button"
+                                               title="Archivar pedido"
+                                               onclick="openArchiveModal({{ $order->id }}, '{{ $order->invoice_number }}')"
+                                               style="width:32px;height:32px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#ef4444;cursor:pointer;transition:all 0.2s;"
+                                               onmouseover="this.style.background='rgba(239,68,68,0.22)'"
+                                               onmouseout="this.style.background='rgba(239,68,68,0.1)'">
+                                                <i class="fa-solid fa-box-archive" style="font-size:13px;"></i>
+                                            </button>
+                                        @endif
+
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
+        @endif
+
+    </div><!-- /hc-card tabla -->
+
+</div><!-- /container -->
+
+
+<!-- ── MODAL DE CONFIRMACIÓN DE ARCHIVADO ──────────────────────────────────── -->
+<div id="archive-modal" style="display:none; position:fixed; inset:0; z-index:200; align-items:center; justify-content:center;">
+    <!-- Backdrop -->
+    <div onclick="closeArchiveModal()"
+         style="position:absolute; inset:0; background:rgba(10,15,44,0.75); backdrop-filter:blur(8px);"></div>
+
+    <!-- Caja del modal -->
+    <div style="position:relative; z-index:201; background:#112266; border:1px solid #1e3a8a; border-radius:20px; padding:36px; max-width:420px; width:90%; box-shadow:0 32px 80px rgba(0,0,0,0.6); animation:fadeInUp 0.3s ease;">
+        <div style="text-align:center; margin-bottom:24px;">
+            <div style="font-size:48px; color:#f59e0b; margin-bottom:12px;">
+                <i class="fa-solid fa-box-archive"></i>
+            </div>
+            <h3 style="font-size:20px; font-weight:700; color:#f0f4ff; margin:0 0 8px;">¿Archivar pedido?</h3>
+            <p style="font-size:14px; color:#93c5fd; margin:0;">
+                Pedido <strong id="modal-invoice" style="color:#f0f4ff;"></strong> se moverá a archivados.<br>
+                Podrás restaurarlo cuando lo necesites.
+            </p>
+        </div>
+        <div style="display:flex; gap:12px; justify-content:center;">
+            <button type="button" onclick="closeArchiveModal()" class="btn-secondary" style="flex:1; justify-content:center;">
+                <i class="fa-solid fa-xmark"></i> Cancelar
+            </button>
+            <form id="archive-form" method="POST" style="flex:1;">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn-danger" style="width:100%; justify-content:center;">
+                    <i class="fa-solid fa-box-archive"></i> Archivar
+                </button>
+            </form>
         </div>
     </div>
 </div>
+
+<script>
+function openArchiveModal(id, invoice) {
+    document.getElementById('modal-invoice').textContent = invoice;
+    document.getElementById('archive-form').action = '/orders/' + id;
+    document.getElementById('archive-modal').style.display = 'flex';
+}
+function closeArchiveModal() {
+    document.getElementById('archive-modal').style.display = 'none';
+}
+// Cerrar con Escape
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeArchiveModal(); });
+</script>
+
 @endsection

@@ -20,6 +20,8 @@ class Order extends Model
         'notes',
         'status',
         'is_deleted',
+        'photo_loaded',
+        'photo_delivered',
     ];
 
     // Attribute casting
