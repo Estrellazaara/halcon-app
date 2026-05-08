@@ -4,109 +4,173 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Order;
+use Illuminate\Support\Facades\Auth;
 
-// Cambios que realice solo para Order 
 class OrderController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Muestra el listado de pedidos activos con filtros de búsqueda.
+     * Accesible a Sales, Warehouse, Route y Admin (CU-09 / CU-15).
      */
-    public function index()
+    public function index(Request $request)
     {
-        $orders = Order::where('is_deleted', false)->get();
+        $query = Order::where('is_deleted', false);
+
+        // Filtro por número de factura (CU-15)
+        if ($request->filled('invoice_number')) {
+            $query->where('invoice_number', 'like', '%' . $request->invoice_number . '%');
+        }
+
+        // Filtro por número de cliente (CU-15)
+        if ($request->filled('customer_number')) {
+            $query->where('customer_number', 'like', '%' . $request->customer_number . '%');
+        }
+
+        // Filtro por estado (CU-15)
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filtro por fecha (CU-15)
+        if ($request->filled('order_date')) {
+            $query->whereDate('order_datetime', $request->order_date);
+        }
+
+        $orders = $query->orderBy('created_at', 'desc')->get();
 
         return view('orders.index', compact('orders'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Muestra el formulario para crear un pedido nuevo.
+     * Solo accesible a Sales (verificado en middleware de rutas).
      */
     public function create()
     {
+        // Solo Sales puede crear pedidos (CU-06)
+        if (!Auth::user()->hasRole('Sales') && !Auth::user()->hasRole('Admin')) {
+            abort(403, 'Solo el rol Ventas puede crear pedidos.');
+        }
+
         return view('orders.create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Guarda un pedido nuevo.
+     * - El número de factura se genera automáticamente (CU-08).
+     * - El estado inicial siempre es "Ordered", ignorando lo que envíe el formulario (CU-07).
      */
     public function store(Request $request)
     {
+        // Solo Sales puede guardar pedidos (CU-06)
+        if (!Auth::user()->hasRole('Sales') && !Auth::user()->hasRole('Admin')) {
+            abort(403, 'Solo el rol Ventas puede registrar pedidos.');
+        }
+
+        // Validación de campos obligatorios (NO incluye invoice_number ni status: se calculan aquí)
         $request->validate([
-            'invoice_number' => 'required|string|max:20|unique:orders,invoice_number',
-            'customer_name' => 'required|string|max:100',
-            'customer_number' => 'required|string|max:20|unique:orders,customer_number',
+            'customer_name'    => 'required|string|max:100',
+            'customer_number'  => 'required|string|max:20',
             'delivery_address' => 'required|string|max:200',
-            'order_datetime' => 'required|date',
-            'fiscal_data' => 'required|string|max:255',
-            'notes' => 'nullable|string|max:1000',
-            'status' => 'nullable|in:Ordered,In process,In route,Delivered',
+            'order_datetime'   => 'required|date',
+            'fiscal_data'      => 'required|string|max:255',
+            'notes'            => 'nullable|string|max:1000',
         ]);
 
+        // Generación automática del número de factura consecutivo (CU-08).
+        // Se usa el máximo ID existente para calcular el siguiente número.
+        // Formato: HAL-000001, HAL-000002, etc.
+        $lastId   = Order::withoutGlobalScopes()->max('id') ?? 0;
+        $nextNum  = $lastId + 1;
+        $invoiceNumber = 'HAL-' . str_pad($nextNum, 6, '0', STR_PAD_LEFT);
+
+        // El estado inicial SIEMPRE es "Ordered", el usuario no puede modificarlo (CU-07).
         Order::create([
-            'invoice_number' => $request->invoice_number,
-            'customer_name' => $request->customer_name,
-            'customer_number' => $request->customer_number,
+            'invoice_number'   => $invoiceNumber,
+            'customer_name'    => $request->customer_name,
+            'customer_number'  => $request->customer_number,
             'delivery_address' => $request->delivery_address,
-            'order_datetime' => $request->order_datetime,
-            'fiscal_data' => $request->fiscal_data,
-            'notes' => $request->notes,
-            'status' => $request->status ?? 'Ordered',
-            'is_deleted' => false,
+            'order_datetime'   => $request->order_datetime,
+            'fiscal_data'      => $request->fiscal_data,
+            'notes'            => $request->notes,
+            'status'           => 'Ordered',  // forzado, nunca tomado del request
+            'is_deleted'       => false,
         ]);
 
-        return redirect()->route('orders.index');
+        return redirect()->route('orders.index')
+            ->with('success', 'Pedido registrado correctamente.');
     }
 
     /**
-     * Display the specified resource.
+     * Muestra el detalle de un pedido.
      */
     public function show(string $id)
     {
-        $order = Order::findOrFail($id);
+        $order = Order::with(['items.product', 'photos'])->findOrFail($id);
+
         return view('orders.show', compact('order'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Muestra el formulario de edición de un pedido.
+     * Solo Admin puede editar datos generales del pedido.
+     * Almacén y Ruta solo pueden cambiar el estado.
      */
     public function edit(string $id)
     {
         $order = Order::findOrFail($id);
+
         return view('orders.edit', compact('order'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Actualiza un pedido existente.
+     * - Valida todos los campos antes de guardar (faltaba antes).
+     * - Respeta el flujo de estados sin permitir saltos (CU-12).
+     *   Flujo válido: Ordered → In process → In route → Delivered
      */
     public function update(Request $request, Order $order)
     {
+        $validated = $request->validate([
+            'customer_name'    => 'required|string|max:100',
+            'customer_number'  => 'required|string|max:20',
+            'delivery_address' => 'required|string|max:200',
+            'order_datetime'   => 'required|date',
+            'notes'            => 'nullable|string|max:1000',
+            'status'           => 'required|in:Ordered,In process,In route,Delivered',
+        ]);
 
-        $order->update($request->only([
-            'invoice_number',
-            'customer_name',
-            'customer_number',
-            'delivery_address',
-            'order_datetime',
-            'notes',
-            'status',
-        ]));
+        // Verificación del flujo de estados (CU-12).
+        // Si el estado cambia, debe ser una transición válida.
+        if ($validated['status'] !== $order->status) {
+            if (!$order->canTransitionTo($validated['status'])) {
+                return back()
+                    ->withInput()
+                    ->withErrors([
+                        'status' => 'Cambio de estado no permitido. '
+                            . 'El flujo válido es: Ordered → In process → In route → Delivered.',
+                    ]);
+            }
+        }
 
-        return redirect()->route('orders.index')->with('success', 'Order updated successfully');
+        $order->update($validated);
+
+        return redirect()->route('orders.index')
+            ->with('success', 'Pedido actualizado correctamente.');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Eliminación lógica: marca el pedido como eliminado (is_deleted = true).
+     * NO borra el registro de la base de datos para poder restaurarlo (CU-16).
      */
     public function destroy(string $id)
     {
         $order = Order::findOrFail($id);
 
-        $order->items()->delete();
-        $order->photos()->delete();
+        // Eliminación lógica: el pedido queda en BD pero oculto del listado principal.
+        $order->update(['is_deleted' => true]);
 
-        $order->delete();
-
-
-        return redirect()->route('orders.index')->with('success', 'Order deleted successfully');
+        return redirect()->route('orders.index')
+            ->with('success', 'Pedido archivado correctamente. Puede restaurarlo desde Pedidos Archivados.');
     }
 }

@@ -216,33 +216,36 @@
 
                     </div>
 
+                    {{-- Botones de acción: protegidos por rol (CU-12, CU-16) --}}
                     <div style="margin-top:40px; display:flex; justify-content:center; gap:40px; flex-wrap:wrap;">
 
-                        <a
-                            href="/orders/{{ $order->id }}/edit"
-                            style="background-color:#7c3aed; color:white; padding:14px 40px; border-radius:16px; text-decoration:none; font-weight:600; font-size:20px; display:inline-block;">
+                        {{-- Editar solo Admin --}}
+                        @if(auth()->user()->hasRole('Admin'))
+                            <a
+                                href="/orders/{{ $order->id }}/edit"
+                                style="background-color:#7c3aed; color:white; padding:14px 40px; border-radius:16px; text-decoration:none; font-weight:600; font-size:20px; display:inline-block;">
+                                Editar Pedido
+                            </a>
+                        @endif
 
-                            Edit Order
+                        {{-- Archivar (eliminación lógica) solo Admin (CU-16) --}}
+                        @if(auth()->user()->hasRole('Admin') && !$order->is_deleted)
+                            <form
+                                action="{{ route('orders.destroy', $order->id) }}"
+                                method="POST"
+                                onsubmit="return confirm('¿Archivar este pedido? Podrás restaurarlo después.')">
 
-                        </a>
+                                @csrf
+                                @method('DELETE')
 
-                        <form
-                            action="{{ route('orders.destroy', $order->id) }}"
-                            method="POST"
-                            onsubmit="return confirm('Are you sure you want to delete this order?')">
+                                <button
+                                    type="submit"
+                                    style="background-color:#f59e0b; color:white; padding:14px 40px; border:none; border-radius:16px; font-weight:600; font-size:20px; cursor:pointer;">
+                                    Archivar Pedido
+                                </button>
 
-                            @csrf
-                            @method('DELETE')
-
-                            <button
-                                type="submit"
-                                style="background-color:#ef4444; color:white; padding:14px 40px; border:none; border-radius:16px; font-weight:600; font-size:20px; cursor:pointer;">
-
-                                Delete Order
-
-                            </button>
-
-                        </form>
+                            </form>
+                        @endif
 
                     </div>
 

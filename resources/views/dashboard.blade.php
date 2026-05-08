@@ -45,6 +45,7 @@
                         <div class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm card-panel">
                             <h2 class="text-xl font-semibold text-slate-950 mb-4">Compras</h2>
                             <ul class="space-y-3 text-slate-900">
+                                <li><a href="{{ route('orders.index') }}" class="text-sky-600 hover:text-slate-700">Ver Pedidos</a></li>
                                 <li><a href="{{ route('products.index') }}" class="text-sky-600 hover:text-slate-700">Ver Productos</a></li>
                                 <li><a href="#" class="text-sky-600 hover:text-slate-700">Solicitudes de Compra</a></li>
                             </ul>

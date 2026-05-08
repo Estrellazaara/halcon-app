@@ -89,8 +89,9 @@ Route::middleware('auth')->group(function () {
         })->name('orders.restore');
     });
 
-    // Sales, Warehouse and Route can manage orders
-    Route::middleware('role:Sales,Warehouse,Route')->group(function () {
+    // Sales, Warehouse, Route y Purchasing pueden ver pedidos.
+    // La creación está restringida en el controlador a Sales/Admin (CU-06, CU-09).
+    Route::middleware('role:Sales,Warehouse,Route,Purchasing')->group(function () {
         Route::resource('orders', OrderController::class);
     });
 
