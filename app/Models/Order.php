@@ -16,6 +16,7 @@ class Order extends Model
         'delivery_address',
         'scheduled_delivery_date',
         'order_datetime',
+        'fiscal_data',
         'notes',
         'status',
         'is_deleted',

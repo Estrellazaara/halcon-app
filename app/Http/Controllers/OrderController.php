@@ -37,6 +37,7 @@ class OrderController extends Controller
             'customer_number' => 'required|string|max:20|unique:orders,customer_number',
             'delivery_address' => 'required|string|max:200',
             'order_datetime' => 'required|date',
+            'fiscal_data' => 'required|string|max:255',
             'notes' => 'nullable|string|max:1000',
             'status' => 'nullable|in:Ordered,In process,In route,Delivered',
         ]);
@@ -47,6 +48,7 @@ class OrderController extends Controller
             'customer_number' => $request->customer_number,
             'delivery_address' => $request->delivery_address,
             'order_datetime' => $request->order_datetime,
+            'fiscal_data' => $request->fiscal_data,
             'notes' => $request->notes,
             'status' => $request->status ?? 'Ordered',
             'is_deleted' => false,

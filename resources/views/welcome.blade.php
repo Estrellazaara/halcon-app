@@ -76,5 +76,3 @@
     </div>
 </div>
 @endsection
-
-@endsection

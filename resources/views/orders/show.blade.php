@@ -3,97 +3,267 @@
 @section('content')
 <div class="py-12 bg-white min-h-screen card-panel">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+
         <div class="rounded-[32px] bg-slate-900 shadow-xl border border-slate-200 overflow-hidden">
+
             <div class="bg-slate-950 border-b border-slate-800 px-8 py-8">
+
                 <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+
                     <div>
-                        <p class="text-sm uppercase tracking-[0.3em] text-sky-400">Panel Administrativo</p>
-                        <h1 class="mt-3 text-3xl font-semibold text-white">Order Detail</h1>
+                        <p class="text-sm uppercase tracking-[0.3em] text-sky-400">
+                            Panel Administrativo
+                        </p>
+
+                        <h1 class="mt-3 text-3xl font-semibold text-white">
+                            Order Detail
+                        </h1>
                     </div>
+
                 </div>
+
             </div>
+
             <div class="p-8 bg-slate-900">
+
                 <div class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm card-panel">
-<table class="panel-table">
-        <tbody>
-            <tr>
-                <th>Invoice Number</th>
-                <td>{{ $order->invoice_number }}</td>
-            </tr>
-            <tr>
-                <th>Customer Name</th>
-                <td>{{ $order->customer_name }}</td>
-            </tr>
-            <tr>
-                <th>Customer Number</th>
-                <td>{{ $order->customer_number }}</td>
-            </tr>
-            <tr>
-                <th>Delivery Address</th>
-                <td>{{ $order->delivery_address }}</td>
-            </tr>
-            <tr>
-                <th>Notes</th>
-                <td>{{ $order->notes }}</td>
-            </tr>
-            <tr>
-                <th>Status</th>
-                <td>{{ $order->status }}</td>
-            </tr>
-            <tr>
-                <th>Order Date</th>
-                <td>{{ $order->order_datetime }}</td>
-            </tr>
-        </tbody>
-    </table>
 
-    <br>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-    <h2>Products</h2>
-    <table class="panel-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Product</th>
-                <th>Quantity</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($order->items as $item)
-                <tr>
-                    <td>{{ $item->id }}</td>
-                    <td>{{ $item->product->name ?? '' }}</td>
-                    <td>{{ $item->quantity }}</td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.25em] text-slate-500 mb-2">
+                                Invoice Number
+                            </p>
 
-    <br>
+                            <div class="bg-slate-100 border border-slate-200 rounded-xl px-4 py-4 shadow-sm">
+                                {{ $order->invoice_number }}
+                            </div>
+                        </div>
 
-    <h2>Photos</h2>
-    @foreach($order->photos as $photo)
-        <div>
-            <p><strong>Type:</strong> {{ $photo->type }}</p>
-            <img src="{{ asset('storage/' . $photo->photo_path) }}" width="250">
-        </div>
-        <br>
-    @endforeach
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.25em] text-slate-500 mb-2">
+                                Customer Name
+                            </p>
 
-    <br>
+                            <div class="bg-slate-100 border border-slate-200 rounded-xl px-4 py-4 shadow-sm">
+                                {{ $order->customer_name }}
+                            </div>
+                        </div>
 
-    <a href="{{ route('orders.edit', $order->id) }}">Edit Order</a>
-    <br>
-    <a href="{{ route('orders.index') }}" class="btn-secondary">Back to Orders</a>
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.25em] text-slate-500 mb-2">
+                                Customer Number
+                            </p>
 
-    <form action="{{ route('orders.destroy', $order->id) }}" method="POST">
-        @csrf
-        @method('delete')
-        <button type="submit">Delete Order</button>
-    </form>
+                            <div class="bg-slate-100 border border-slate-200 rounded-xl px-4 py-4 shadow-sm">
+                                {{ $order->customer_number }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.25em] text-slate-500 mb-2">
+                                Fiscal Data
+                            </p>
+
+                            <div class="bg-slate-100 border border-slate-200 rounded-xl px-4 py-4 shadow-sm">
+                                {{ $order->fiscal_data }}
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <p class="text-xs uppercase tracking-[0.25em] text-slate-500 mb-2">
+                                Delivery Address
+                            </p>
+
+                            <div class="bg-slate-100 border border-slate-200 rounded-xl px-4 py-4 shadow-sm">
+                                {{ $order->delivery_address }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.25em] text-slate-500 mb-2">
+                                Status
+                            </p>
+
+                            <div class="bg-purple-100 border border-purple-200 rounded-xl px-4 py-4 shadow-sm text-purple-700 font-semibold">
+                                {{ $order->status }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.25em] text-slate-500 mb-2">
+                                Order Date
+                            </p>
+
+                            <div class="bg-slate-100 border border-slate-200 rounded-xl px-4 py-4 shadow-sm">
+                                {{ $order->order_datetime }}
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <p class="text-xs uppercase tracking-[0.25em] text-slate-500 mb-2">
+                                Notes
+                            </p>
+
+                            <div class="bg-slate-100 border border-slate-200 rounded-xl px-4 py-4 shadow-sm min-h-[100px]">
+                                {{ $order->notes ?: 'No notes available.' }}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="mt-10">
+
+                        <h2 class="text-2xl font-semibold text-slate-800 mb-4">
+                            Products
+                        </h2>
+
+                        <div class="overflow-hidden rounded-2xl border border-slate-200">
+
+                            <table class="min-w-full">
+
+                                <thead class="bg-slate-100">
+
+                                    <tr>
+
+                                        <th class="px-6 py-4 text-left text-sm uppercase tracking-[0.2em] text-slate-500">
+                                            ID
+                                        </th>
+
+                                        <th class="px-6 py-4 text-left text-sm uppercase tracking-[0.2em] text-slate-500">
+                                            Product
+                                        </th>
+
+                                        <th class="px-6 py-4 text-left text-sm uppercase tracking-[0.2em] text-slate-500">
+                                            Quantity
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+                                <tbody class="bg-white">
+
+                                    @forelse($order->items as $item)
+
+                                        <tr class="border-t border-slate-200">
+
+                                            <td class="px-6 py-4">
+                                                {{ $item->id }}
+                                            </td>
+
+                                            <td class="px-6 py-4">
+                                                {{ $item->product->name ?? '' }}
+                                            </td>
+
+                                            <td class="px-6 py-4">
+                                                {{ $item->quantity }}
+                                            </td>
+
+                                        </tr>
+
+                                    @empty
+
+                                        <tr>
+
+                                            <td colspan="3" class="px-6 py-6 text-center text-slate-500">
+                                                No products assigned.
+                                            </td>
+
+                                        </tr>
+
+                                    @endforelse
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                    <div class="mt-10">
+
+                        <h2 class="text-2xl font-semibold text-slate-800 mb-4">
+                            Photos
+                        </h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                            @forelse($order->photos as $photo)
+
+                                <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50">
+
+                                    <p class="font-semibold text-slate-700 mb-3">
+                                        {{ $photo->type }}
+                                    </p>
+
+                                    <img
+                                        src="{{ asset('storage/' . $photo->photo_path) }}"
+                                        class="rounded-xl shadow-sm">
+
+                                </div>
+
+                            @empty
+
+                                <p class="text-slate-500">
+                                    No photos uploaded.
+                                </p>
+
+                            @endforelse
+
+                        </div>
+
+                    </div>
+
+                    <div style="margin-top:40px; display:flex; justify-content:center; gap:40px; flex-wrap:wrap;">
+
+                        <a
+                            href="/orders/{{ $order->id }}/edit"
+                            style="background-color:#7c3aed; color:white; padding:14px 40px; border-radius:16px; text-decoration:none; font-weight:600; font-size:20px; display:inline-block;">
+
+                            Edit Order
+
+                        </a>
+
+                        <form
+                            action="{{ route('orders.destroy', $order->id) }}"
+                            method="POST"
+                            onsubmit="return confirm('Are you sure you want to delete this order?')">
+
+                            @csrf
+                            @method('DELETE')
+
+                            <button
+                                type="submit"
+                                style="background-color:#ef4444; color:white; padding:14px 40px; border:none; border-radius:16px; font-weight:600; font-size:20px; cursor:pointer;">
+
+                                Delete Order
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                    <div style="display:flex; justify-content:center; margin-top:35px;">
+
+                        <a
+                            href="{{ route('orders.index') }}"
+                            style="background-color:#334155; color:white; padding:14px 40px; border-radius:16px; text-decoration:none; font-weight:600; font-size:20px; display:inline-block;">
+
+                            Back to Orders
+
+                        </a>
+
+                    </div>
+
                 </div>
+
             </div>
+
         </div>
+
     </div>
 </div>
 @endsection
