@@ -1,77 +1,156 @@
+# Halcón Paquetería — Sistema de Seguimiento de Pedidos
+
+Aplicación web desarrollada como proyecto escolar para **Halcón**, una distribuidora de materiales de construcción. El sistema permite registrar, dar seguimiento y gestionar pedidos desde que se crean hasta que se entregan al cliente.
+
 ---
 
-# 🦅 Halcon App
+## ¿Qué hace esta aplicación?
 
-Aplicación web para **Halcon**, distribuidora de materiales de construcción.  
-Proyecto desarrollado con Laravel.
+El sistema cubre todo el flujo de un pedido:
 
-## 🚀 Estado del proyecto
-🔧 Trabajando en una nueva página
+1. **Ventas** registra un pedido nuevo con los datos del cliente
+2. **Almacén** lo prepara y actualiza el estado
+3. **Ruta** lo entrega y sube fotos como evidencia
+4. **El cliente** puede consultar el estado de su pedido desde internet, sin necesidad de crear una cuenta
 
-## 🔗 Prototipo en Figma
-👉 https://www.figma.com/design/zVmPvpwObtT3G7Bg4ZCByP/Untitled?node-id=0-1&t=e9Kq5bATkLaGVAFW-1
+Los administradores tienen acceso completo: pueden gestionar usuarios, ver pedidos archivados y restaurarlos.
 
-## 📄 Documentación
-El documento se encuentra en:
 
-docs/Learning Outcome 1.pdf
 ---
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Roles del sistema
 
-## About Laravel
+| Rol | Qué puede hacer |
+|---|---|
+| **Admin** | Todo: usuarios, pedidos, archivados, restaurar |
+| **Sales (Ventas)** | Crear y ver pedidos, ver productos |
+| **Purchasing (Compras)** | Ver pedidos y productos |
+| **Warehouse (Almacén)** | Ver pedidos, actualizar estado, items |
+| **Route (Ruta)** | Ver pedidos, subir fotos de entrega |
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Flujo de estados de un pedido
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```
+Ordered → In process → In route → Delivered
+(Ordenado)  (En proceso)  (En ruta)  (Entregado)
+```
 
-## Learning Laravel
+Solo se puede avanzar en orden, no se puede saltar estados ni regresar.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Instalación local
 
-## Laravel Sponsors
+> Requisitos: PHP 8.2, Composer, MySQL, Node.js, MAMP (o similar)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+# 1. Clonar el repositorio
+git clone <url-del-repo>
+cd halcon-app
 
-### Premium Partners
+# 2. Instalar dependencias de PHP
+composer install
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+# 3. Instalar dependencias de Node
+npm install
 
-## Contributing
+# 4. Copiar el archivo de configuración
+cp .env.example .env
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# 5. Generar la clave de la aplicación
+php artisan key:generate
+```
 
-## Code of Conduct
+**Configurar la base de datos en `.env`:**
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=8889
+DB_DATABASE=halcon_app
+DB_USERNAME=root
+DB_PASSWORD=root
+```
 
-## Security Vulnerabilities
+```bash
+# 6. Ejecutar migraciones y seeders
+php artisan migrate --seed
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# 7. Crear enlace de almacenamiento (para fotos)
+php artisan storage:link
 
-## License
+# 8. Compilar los assets
+npm run build
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# 9. Iniciar el servidor
+php artisan serve
+```
+
+La app estará disponible en `http://localhost:8000`
+
+---
+
+## Usuario de prueba
+
+Después de correr los seeders, puedes entrar con:
+
+| Campo | Valor |
+|---|---|
+| Email | `admin@halcon.com` |
+| Contraseña | `password` |
+| Rol | Admin |
+
+---
+
+## Estructura del proyecto
+
+```
+halcon-app/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/       # Lógica de cada módulo
+│   │   └── Middleware/        # RoleMiddleware (control de acceso)
+│   └── Models/                # Order, User, Product, Role...
+├── database/
+│   ├── migrations/            # Estructura de la base de datos
+│   └── seeders/               # Datos iniciales (roles, admin)
+├── resources/
+│   ├── css/app.css            # Estilos con variables de diseño
+│   └── views/                 # Plantillas Blade
+│       ├── layouts/app.blade.php   # Navbar + footer compartido
+│       ├── orders/            # Crear, ver, editar, archivar pedidos
+│       ├── users/             # Gestión de usuarios (solo Admin)
+│       └── welcome.blade.php  # Página pública de rastreo
+├── routes/web.php             # Todas las rutas de la app
+└── public/
+    └── logo.png               # Logo de Halcón Paquetería
+```
+
+---
+
+## Páginas principales
+
+| URL | Descripción | Acceso |
+|---|---|---|
+| `/` | Rastrear pedido (pública) | Todos |
+| `/login` | Iniciar sesión | Todos |
+| `/dashboard` | Panel principal por rol | Usuarios activos |
+| `/orders` | Lista de pedidos | Sales, Warehouse, Route, Purchasing, Admin |
+| `/orders/create` | Crear pedido | Sales, Admin |
+| `/users` | Gestión de usuarios | Admin |
+| `/orders-archived` | Pedidos archivados | Admin |
+
+---
+
+## Documentación y diseño
+
+- **Prototipo en Figma:** https://www.figma.com/design/zVmPvpwObtT3G7Bg4ZCByP/Untitled?node-id=0-1&t=e9Kq5bATkLaGVAFW-1
+- **Documento del proyecto:** `docs/Learning Outcome 1.pdf`
+
+---
+
+## Autora
+
+Proyecto escolar desarrollado por **Equipo 3**
