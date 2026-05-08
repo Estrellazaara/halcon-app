@@ -1,49 +1,112 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="py-12 bg-white min-h-screen card-panel">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="rounded-[32px] bg-slate-900 shadow-xl border border-slate-200 overflow-hidden">
-            <div class="bg-slate-950 border-b border-slate-800 px-8 py-8">
-                <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <p class="text-sm uppercase tracking-[0.3em] text-sky-400">Panel Administrativo</p>
-                        <h1 class="mt-3 text-3xl font-semibold text-white">Edit Product</h1>
+<div style="max-width:860px; margin:0 auto; padding:0 24px;">
+
+    <!-- HEADER -->
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:16px;">
+        <div>
+            <h1 style="font-size:26px; font-weight:700; color:#1e293b; letter-spacing:-0.02em; margin:0 0 4px;">
+                <i class="fa-solid fa-pen-to-square" style="color:var(--hc-green); margin-right:10px;"></i>
+                Editar Producto
+            </h1>
+            <p style="font-size:13px; color:#64748b; margin:0;">
+                Modificando: <strong>{{ $product->name }}</strong>
+            </p>
+        </div>
+        <a href="{{ route('products.index') }}" class="btn-secondary">
+            <i class="fa-solid fa-arrow-left"></i> Volver al catálogo
+        </a>
+    </div>
+
+    @if($errors->any())
+        <div class="hc-alert-error" style="margin-bottom:20px;">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <ul style="margin:0; padding-left:18px;">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <!-- FORM CARD -->
+    <div class="hc-card">
+        <div class="hc-card-header">
+            <i class="fa-solid fa-cube" style="color:var(--hc-green); margin-right:8px;"></i>
+            Información del producto
+        </div>
+        <div class="hc-card-body">
+            <form action="{{ route('products.update', $product->id) }}" method="POST">
+                @csrf
+                @method('PATCH')
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">
+
+                    <!-- Nombre -->
+                    <div style="grid-column:1/-1;">
+                        <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:6px;">
+                            Nombre del producto <span style="color:#dc2626;">*</span>
+                        </label>
+                        <input type="text" name="name" class="hc-input"
+                               value="{{ old('name', $product->name) }}"
+                               placeholder="Ej. Caja de cartón mediana" required>
                     </div>
+
+                    <!-- Precio -->
+                    <div>
+                        <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:6px;">
+                            Precio <span style="color:#dc2626;">*</span>
+                        </label>
+                        <input type="number" name="price" class="hc-input" step="0.01" min="0"
+                               value="{{ old('price', $product->price) }}"
+                               placeholder="0.00" required>
+                    </div>
+
+                    <!-- Stock actual -->
+                    <div>
+                        <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:6px;">
+                            Stock actual <span style="color:#dc2626;">*</span>
+                        </label>
+                        <input type="number" name="current_stock" class="hc-input" min="0"
+                               value="{{ old('current_stock', $product->current_stock) }}"
+                               placeholder="0" required>
+                    </div>
+
+                    <!-- Stock mínimo -->
+                    <div>
+                        <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:6px;">
+                            Stock mínimo <span style="color:#dc2626;">*</span>
+                        </label>
+                        <input type="number" name="minimum_stock" class="hc-input" min="0"
+                               value="{{ old('minimum_stock', $product->minimum_stock) }}"
+                               placeholder="0" required>
+                    </div>
+
+                    <!-- Descripción -->
+                    <div style="grid-column:1/-1;">
+                        <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:6px;">
+                            Descripción
+                        </label>
+                        <textarea name="description" class="hc-input" rows="3"
+                                  placeholder="Descripción opcional del producto...">{{ old('description', $product->description) }}</textarea>
+                    </div>
+
                 </div>
-            </div>
-            <div class="p-8 bg-slate-900">
-                <div class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm card-panel">
-<form action="{{ route('products.update', $product->id) }}" method="POST">
-        @csrf
-        @method('patch')
 
-        <label>Name:</label>
-        <input type="text" name="name" value="{{ $product->name }}" />
-        <br><br>
-
-        <label>Description:</label>
-        <input type="text" name="description" value="{{ $product->description }}" />
-        <br><br>
-
-        <label>Price:</label>
-        <input type="number" name="price" step="0.01" min="0" value="{{ $product->price }}" />
-        <br><br>
-
-        <label>Current Stock:</label>
-        <input type="number" name="current_stock" value="{{ $product->current_stock }}" />
-        <br><br>
-
-        <label>Minimum Stock:</label>
-        <input type="number" name="minimum_stock" value="{{ $product->minimum_stock }}" />
-        <br><br>
-
-        <input type="submit" value="Edit Product" />
-
-    </form>
+                <!-- ACTIONS -->
+                <div style="display:flex; gap:12px; padding-top:8px; border-top:1px solid #e2e8f0;">
+                    <button type="submit" class="btn-primary">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar cambios
+                    </button>
+                    <a href="{{ route('products.index') }}" class="btn-secondary">
+                        Cancelar
+                    </a>
                 </div>
-            </div>
+
+            </form>
         </div>
     </div>
+
 </div>
 @endsection
