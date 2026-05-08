@@ -228,4 +228,47 @@ class OrderController extends Controller
         return redirect()->route('orders.index')
             ->with('success', 'Pedido archivado correctamente. Puede restaurarlo desde Pedidos Archivados.');
     }
+
+    /**
+     * API pública de rastreo: devuelve el estado de un pedido por número de cliente y factura.
+     * No requiere autenticación (acceso público). Consumido por el frontend Vue.
+     */
+    public function trackOrder(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'customer_number' => 'required|string|max:50',
+            'invoice_number'  => 'required|string|max:50',
+        ]);
+
+        $order = Order::where('customer_number', $request->customer_number)
+            ->where('invoice_number', $request->invoice_number)
+            ->where('is_deleted', false)
+            ->first();
+
+        if (!$order) {
+            return response()->json(['found' => false], 404);
+        }
+
+        return response()->json([
+            'found' => true,
+            'order' => [
+                'invoice_number'          => $order->invoice_number,
+                'customer_name'           => $order->customer_name,
+                'customer_number'         => $order->customer_number,
+                'status'                  => $order->status,
+                'delivery_address'        => $order->delivery_address,
+                'order_datetime'          => $order->order_datetime?->format('d/m/Y H:i'),
+                'scheduled_delivery_date' => $order->scheduled_delivery_date?->format('d/m/Y'),
+                'notes'                   => $order->notes,
+                'photos'                  => [
+                    'loaded'    => $order->photo_loaded
+                        ? asset('storage/' . $order->photo_loaded)
+                        : null,
+                    'delivered' => $order->photo_delivered
+                        ? asset('storage/' . $order->photo_delivered)
+                        : null,
+                ],
+            ],
+        ]);
+    }
 }
