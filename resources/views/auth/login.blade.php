@@ -1,51 +1,88 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
-    <div class="w-full max-w-md bg-surface-soft border border-slate-800 shadow-lg shadow-slate-950/30 rounded-[32px] px-8 py-10">
-        <div class="text-center mb-8">
-            <p class="text-sm uppercase tracking-[0.3em] text-white">Panel administrativo</p>
-            <h2 class="mt-4 text-3xl font-semibold text-white">Iniciar Sesión</h2>
-            <p class="mt-2 text-sm text-white">Accede a tu cuenta administrativa</p>
+<div style="min-height:calc(100vh - 140px); display:flex; align-items:center; justify-content:center; padding:40px 16px;">
+
+    <div class="hc-card" style="width:100%; max-width:420px; padding:0; overflow:hidden;">
+
+        <!-- Encabezado verde -->
+        <div class="hc-card-header" style="text-align:center; padding:28px 32px;">
+            <div style="display:inline-flex; align-items:center; justify-content:center; width:56px; height:56px; background:rgba(255,255,255,0.15); border-radius:14px; margin-bottom:16px;">
+                <i class="fa-solid fa-lock" style="font-size:24px; color:#ffffff;"></i>
+            </div>
+            <h2 style="font-size:22px; font-weight:700; color:#ffffff; margin:0 0 4px;">Acceso Administrativo</h2>
+            <p style="font-size:13px; color:rgba(255,255,255,0.7); margin:0;">Ingresa tus credenciales para continuar</p>
         </div>
 
-        <form class="space-y-6" method="POST" action="{{ route('login.store') }}">
-            @csrf
-            <input type="hidden" name="remember" value="true" />
-
-            <div class="space-y-4">
-                <div>
-                    <label for="email" class="block text-sm font-medium text-white">Correo electrónico</label>
-                    <input id="email" name="email" type="email" autocomplete="email" required value="{{ old('email') }}" class="mt-2 block w-full rounded-2xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" placeholder="correo@ejemplo.com">
-                </div>
-                <div>
-                    <label for="password" class="block text-sm font-medium text-white">Contraseña</label>
-                    <input id="password" name="password" type="password" autocomplete="current-password" required class="mt-2 block w-full rounded-2xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" placeholder="••••••••">
-                </div>
-            </div>
-
-            <div class="flex items-center justify-between text-sm text-white">
-                <label class="flex items-center gap-2">
-                    <input id="remember-me" name="remember" type="checkbox" class="h-4 w-4 rounded border-slate-600 bg-slate-900 text-indigo-500 focus:ring-indigo-500">
-                    Recordarme
-                </label>
-            </div>
-
-            <div>
-                <button type="submit" class="btn-primary w-full">Iniciar Sesión</button>
-            </div>
+        <!-- Formulario -->
+        <div class="hc-card-body" style="padding:32px;">
 
             @if ($errors->any())
-                <div class="rounded-3xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-100">
-                    <p class="font-semibold">Hay errores en el formulario:</p>
-                    <ul class="mt-2 list-disc pl-5 space-y-1 text-red-100/90">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+                <div class="hc-alert-error" style="margin-bottom:20px;">
+                    <p style="font-weight:700; margin:0 0 6px; display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Error de acceso
+                    </p>
+                    @foreach ($errors->all() as $error)
+                        <p style="margin:0; font-size:13px;">{{ $error }}</p>
+                    @endforeach
                 </div>
             @endif
-        </form>
+
+            <form method="POST" action="{{ route('login.store') }}">
+                @csrf
+
+                <!-- Email -->
+                <div style="margin-bottom:18px;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:8px; letter-spacing:0.06em; text-transform:uppercase;">
+                        <i class="fa-solid fa-envelope" style="margin-right:5px; color:var(--hc-green);"></i>
+                        Correo Electrónico
+                    </label>
+                    <input
+                        type="email"
+                        name="email"
+                        value="{{ old('email') }}"
+                        placeholder="correo@ejemplo.com"
+                        required
+                        autocomplete="email"
+                        class="hc-input">
+                </div>
+
+                <!-- Password -->
+                <div style="margin-bottom:24px;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:8px; letter-spacing:0.06em; text-transform:uppercase;">
+                        <i class="fa-solid fa-key" style="margin-right:5px; color:var(--hc-green);"></i>
+                        Contraseña
+                    </label>
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="••••••••"
+                        required
+                        autocomplete="current-password"
+                        class="hc-input">
+                </div>
+
+                <!-- Recordarme -->
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:24px;">
+                    <input type="checkbox" name="remember" id="remember"
+                           style="width:16px; height:16px; accent-color:var(--hc-green); cursor:pointer;">
+                    <label for="remember" style="font-size:13px; color:#475569; cursor:pointer;">Mantener sesión iniciada</label>
+                </div>
+
+                <button type="submit" class="btn-primary" style="width:100%; justify-content:center; padding:13px; font-size:15px;">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    Iniciar Sesión
+                </button>
+            </form>
+
+            <div style="text-align:center; margin-top:20px;">
+                <a href="{{ route('home') }}" style="font-size:13px; color:#94a3b8; display:inline-flex; align-items:center; gap:6px;">
+                    <i class="fa-solid fa-arrow-left"></i> Volver al inicio
+                </a>
+            </div>
+
+        </div>
     </div>
+
 </div>
 @endsection

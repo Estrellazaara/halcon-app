@@ -1,82 +1,143 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="py-12 bg-white min-h-screen card-panel">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="rounded-[32px] bg-slate-900 shadow-xl border border-slate-200 overflow-hidden">
-            <div class="bg-slate-950 border-b border-slate-800 px-8 py-8">
-                <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <p class="text-sm uppercase tracking-[0.3em] text-sky-400">Panel Administrativo</p>
-                        <h1 class="mt-3 text-3xl font-semibold text-white">Crear Usuario</h1>
-                    </div>
-                    <a href="{{ route('users.index') }}" class="btn-secondary">Volver</a>
-                </div>
-            </div>
-            <div class="p-8 bg-slate-900">
-                <div class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm card-panel">
-                    <form action="{{ route('users.store') }}" method="POST">
-                        @csrf
+<div style="max-width:800px; margin:0 auto; padding:0 24px;">
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="name" class="block text-sm font-medium text-slate-700">Nombre *</label>
-                                <input type="text" name="name" id="name" value="{{ old('name') }}" required class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm">
-                                @error('name')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
+    <!-- ── HEADER ─────────────────────────────────────────────────────────── -->
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:16px;">
+        <div>
+            <h1 style="font-size:26px; font-weight:700; color:#1e293b; letter-spacing:-0.02em; margin:0 0 4px;">
+                <i class="fa-solid fa-user-plus" style="color:var(--hc-green); margin-right:10px;"></i>
+                Crear Usuario
+            </h1>
+            <p style="font-size:13px; color:#64748b; margin:0;">Registra un nuevo usuario en el sistema</p>
+        </div>
+        <a href="{{ route('users.index') }}" class="btn-secondary">
+            <i class="fa-solid fa-arrow-left"></i> Volver
+        </a>
+    </div>
 
-                            <div>
-                                <label for="email" class="block text-sm font-medium text-slate-700">Email *</label>
-                                <input type="email" name="email" id="email" value="{{ old('email') }}" required class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm">
-                                @error('email')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
+    <div class="hc-card" style="padding:0; overflow:hidden;">
 
-                            <div>
-                                <label for="password" class="block text-sm font-medium text-slate-700">Contraseña *</label>
-                                <input type="password" name="password" id="password" required class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm">
-                                @error('password')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="role_id" class="block text-sm font-medium text-slate-700">Rol *</label>
-                                <select name="role_id" id="role_id" required class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm">
-                                    @foreach ($roles as $role)
-                                        <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
-                                            {{ $role->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('role_id')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="is_active" class="block text-sm font-medium text-slate-700">Activo</label>
-                                <select name="is_active" id="is_active" class="mt-1 block w-full border-slate-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm">
-                                    <option value="1" {{ old('is_active', 1) ? 'selected' : '' }}>Sí</option>
-                                    <option value="0" {{ old('is_active') == '0' ? 'selected' : '' }}>No</option>
-                                </select>
-                                @error('is_active')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="mt-6 flex items-center gap-4">
-                            <button type="submit" class="btn-primary">Crear Usuario</button>
-                            <a href="{{ route('users.index') }}" class="btn-secondary">Cancelar</a>
-                        </div>
-                    </form>
+        <div class="hc-card-header">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <i class="fa-solid fa-id-badge" style="font-size:20px;"></i>
+                <div>
+                    <div style="font-size:16px; font-weight:700;">Datos del Usuario</div>
+                    <div style="font-size:12px; opacity:0.8;">Todos los campos marcados con * son obligatorios</div>
                 </div>
             </div>
         </div>
+
+        <div class="hc-card-body">
+
+            @if ($errors->any())
+                <div class="hc-alert-error" style="margin-bottom:24px;">
+                    <p style="font-weight:700; margin:0 0 8px; display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Por favor corrige los siguientes errores:
+                    </p>
+                    <ul style="margin:0; padding-left:20px;">
+                        @foreach ($errors->all() as $error)
+                            <li style="font-size:13px;">{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form action="{{ route('users.store') }}" method="POST">
+                @csrf
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:20px;">
+
+                    <!-- Nombre -->
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:8px; letter-spacing:0.06em; text-transform:uppercase;">
+                            <i class="fa-solid fa-user" style="margin-right:4px; color:var(--hc-green);"></i>
+                            Nombre *
+                        </label>
+                        <input type="text" name="name" value="{{ old('name') }}" required
+                               placeholder="Nombre completo"
+                               class="hc-input @error('name') border-red-400 @enderror">
+                        @error('name')
+                            <p style="color:#dc2626; font-size:12px; margin:5px 0 0;"><i class="fa-solid fa-circle-exclamation" style="margin-right:4px;"></i>{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:8px; letter-spacing:0.06em; text-transform:uppercase;">
+                            <i class="fa-solid fa-envelope" style="margin-right:4px; color:var(--hc-green);"></i>
+                            Correo Electrónico *
+                        </label>
+                        <input type="email" name="email" value="{{ old('email') }}" required
+                               placeholder="correo@ejemplo.com"
+                               class="hc-input @error('email') border-red-400 @enderror">
+                        @error('email')
+                            <p style="color:#dc2626; font-size:12px; margin:5px 0 0;"><i class="fa-solid fa-circle-exclamation" style="margin-right:4px;"></i>{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Contraseña -->
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:8px; letter-spacing:0.06em; text-transform:uppercase;">
+                            <i class="fa-solid fa-key" style="margin-right:4px; color:var(--hc-green);"></i>
+                            Contraseña *
+                        </label>
+                        <input type="password" name="password" required
+                               placeholder="Mínimo 8 caracteres"
+                               class="hc-input @error('password') border-red-400 @enderror">
+                        @error('password')
+                            <p style="color:#dc2626; font-size:12px; margin:5px 0 0;"><i class="fa-solid fa-circle-exclamation" style="margin-right:4px;"></i>{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Rol -->
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:8px; letter-spacing:0.06em; text-transform:uppercase;">
+                            <i class="fa-solid fa-shield-halved" style="margin-right:4px; color:var(--hc-green);"></i>
+                            Rol *
+                        </label>
+                        <select name="role_id" required class="hc-input @error('role_id') border-red-400 @enderror">
+                            <option value="">— Selecciona un rol —</option>
+                            @foreach ($roles as $role)
+                                <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
+                                    {{ $role->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('role_id')
+                            <p style="color:#dc2626; font-size:12px; margin:5px 0 0;"><i class="fa-solid fa-circle-exclamation" style="margin-right:4px;"></i>{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Activo -->
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:8px; letter-spacing:0.06em; text-transform:uppercase;">
+                            <i class="fa-solid fa-toggle-on" style="margin-right:4px; color:var(--hc-green);"></i>
+                            Estado de la Cuenta
+                        </label>
+                        <select name="is_active" class="hc-input">
+                            <option value="1" {{ old('is_active', 1) ? 'selected' : '' }}>Activa</option>
+                            <option value="0" {{ old('is_active') == '0' ? 'selected' : '' }}>Inactiva</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <hr class="hc-divider">
+
+                <div style="display:flex; gap:14px; flex-wrap:wrap;">
+                    <button type="submit" class="btn-primary">
+                        <i class="fa-solid fa-floppy-disk"></i> Crear Usuario
+                    </button>
+                    <a href="{{ route('users.index') }}" class="btn-secondary">
+                        <i class="fa-solid fa-xmark"></i> Cancelar
+                    </a>
+                </div>
+
+            </form>
+        </div>
     </div>
+
 </div>
 @endsection

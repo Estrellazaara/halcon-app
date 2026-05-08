@@ -16,13 +16,13 @@ $statusMap = [
     <!-- ── HEADER ─────────────────────────────────────────────────────────── -->
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:16px;">
         <div>
-            <h1 style="font-size:26px; font-weight:700; color:#f0f4ff; letter-spacing:-0.02em; margin:0 0 4px;">
-                <i class="fa-solid fa-box-archive" style="color:#f59e0b; margin-right:10px;"></i>
+            <h1 style="font-size:26px; font-weight:700; color:#1e293b; letter-spacing:-0.02em; margin:0 0 4px;">
+                <i class="fa-solid fa-box-archive" style="color:var(--hc-orange); margin-right:10px;"></i>
                 Pedidos Archivados
             </h1>
-            <p style="font-size:13px; color:#93c5fd; margin:0;">
+            <p style="font-size:13px; color:#64748b; margin:0;">
                 Total archivados:
-                <span style="background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); color:#f59e0b; border-radius:20px; padding:2px 10px; font-weight:700; font-size:12px; margin-left:4px;">
+                <span style="background:rgba(234,88,12,0.1); border:1px solid rgba(234,88,12,0.3); color:var(--hc-orange); border-radius:20px; padding:2px 10px; font-weight:700; font-size:12px; margin-left:4px;">
                     {{ $orders->count() }}
                 </span>
             </p>
@@ -43,11 +43,11 @@ $statusMap = [
 
         @if($orders->isEmpty())
             <div style="text-align:center; padding:64px 24px;">
-                <div style="font-size:56px; color:#1e3a8a; margin-bottom:16px;">
+                <div style="font-size:56px; color:#cbd5e1; margin-bottom:16px;">
                     <i class="fa-solid fa-inbox"></i>
                 </div>
-                <p style="font-size:16px; font-weight:600; color:#93c5fd; margin:0 0 8px;">Sin pedidos archivados</p>
-                <p style="font-size:14px; color:#3d5a99; margin:0;">Cuando archives un pedido aparecerá aquí y podrás restaurarlo.</p>
+                <p style="font-size:16px; font-weight:600; color:#475569; margin:0 0 8px;">Sin pedidos archivados</p>
+                <p style="font-size:14px; color:#94a3b8; margin:0;">Cuando archives un pedido aparecerá aquí y podrás restaurarlo.</p>
             </div>
 
         @else
@@ -69,15 +69,15 @@ $statusMap = [
                             @endphp
                             <tr style="opacity:0.75;">
                                 <td>
-                                    <span style="font-weight:700; color:#93c5fd; font-size:13px;">
+                                    <span style="font-weight:700; color:var(--hc-green); font-size:13px;">
                                         {{ $order->invoice_number }}
                                     </span>
                                 </td>
                                 <td>
-                                    <div style="font-weight:600; color:#f0f4ff;">{{ $order->customer_name }}</div>
-                                    <div style="font-size:12px; color:#3d5a99;">{{ $order->customer_number }}</div>
+                                    <div style="font-weight:600; color:#1e293b;">{{ $order->customer_name }}</div>
+                                    <div style="font-size:12px; color:#64748b;">{{ $order->customer_number }}</div>
                                 </td>
-                                <td style="font-size:13px; color:#93c5fd; white-space:nowrap;">
+                                <td style="font-size:13px; color:#475569; white-space:nowrap;">
                                     {{ $order->order_datetime ? $order->order_datetime->format('d/m/Y') : '—' }}
                                 </td>
                                 <td>
@@ -115,10 +115,10 @@ $statusMap = [
     </div>
 
     <!-- Nota informativa -->
-    <div style="margin-top:20px; padding:14px 18px; background:rgba(245,158,11,0.07); border:1px solid rgba(245,158,11,0.2); border-radius:12px; font-size:13px; color:#93c5fd; display:flex; align-items:center; gap:12px;">
-        <i class="fa-solid fa-circle-info" style="color:#f59e0b; font-size:18px; flex-shrink:0;"></i>
+    <div style="margin-top:20px; padding:14px 18px; background:rgba(234,88,12,0.05); border:1px solid rgba(234,88,12,0.2); border-radius:12px; font-size:13px; color:#64748b; display:flex; align-items:center; gap:12px;">
+        <i class="fa-solid fa-circle-info" style="color:var(--hc-orange); font-size:18px; flex-shrink:0;"></i>
         <span>
-            Los pedidos archivados <strong style="color:#f0f4ff;">no se eliminan de la base de datos</strong>.
+            Los pedidos archivados <strong style="color:#1e293b;">no se eliminan de la base de datos</strong>.
             Al restaurar un pedido, vuelve a aparecer en el listado activo con todos sus datos intactos.
         </span>
     </div>

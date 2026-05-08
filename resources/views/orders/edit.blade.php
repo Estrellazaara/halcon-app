@@ -25,26 +25,26 @@ $flow         = $statusFlow[$order->status] ?? null;
     content:''; position:absolute;
     top:19px; left:calc(50% + 22px);
     width:calc(100% - 44px); height:2px;
-    background:#1e3a8a;
+    background:#e2e8f0;
 }
-.tl-step.done:not(:last-child)::after  { background:#10b981; }
-.tl-step.active:not(:last-child)::after { background:linear-gradient(90deg,#3b82f6,#1e3a8a); }
+.tl-step.done:not(:last-child)::after  { background:var(--hc-green-light); }
+.tl-step.active:not(:last-child)::after { background:linear-gradient(90deg,var(--hc-green),#e2e8f0); }
 .tl-dot {
     width:38px; height:38px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
-    border:2px solid #1e3a8a; background:#0d1b4b; color:#3d5a99;
+    border:2px solid #cbd5e1; background:#f1f5f9; color:#94a3b8;
     font-size:14px; transition:all 0.3s; position:relative; z-index:1;
 }
-.tl-step.done  .tl-dot { background:#10b981; border-color:#10b981; color:#fff; }
+.tl-step.done  .tl-dot { background:var(--hc-green); border-color:var(--hc-green); color:#fff; }
 .tl-step.active .tl-dot {
-    background:#1e40af; border-color:#3b82f6; color:#fff;
-    box-shadow:0 0 0 4px rgba(59,130,246,0.3);
+    background:var(--hc-green-mid); border-color:var(--hc-green-mid); color:#fff;
+    box-shadow:0 0 0 4px rgba(22,101,52,0.2);
     animation:pulseGlow 2s infinite;
 }
 .tl-label { margin-top:8px; font-size:10px; font-weight:700; text-align:center;
-    text-transform:uppercase; letter-spacing:0.06em; color:#3d5a99; }
-.tl-step.done   .tl-label  { color:#10b981; }
-.tl-step.active .tl-label  { color:#3b82f6; }
+    text-transform:uppercase; letter-spacing:0.06em; color:#94a3b8; }
+.tl-step.done   .tl-label  { color:var(--hc-green); }
+.tl-step.active .tl-label  { color:var(--hc-green-mid); }
 </style>
 
 <div style="max-width:900px; margin:0 auto; padding:0 24px;">
@@ -52,13 +52,13 @@ $flow         = $statusFlow[$order->status] ?? null;
     <!-- ── HEADER ─────────────────────────────────────────────────────────── -->
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:16px;">
         <div>
-            <h1 style="font-size:26px; font-weight:700; color:#f0f4ff; letter-spacing:-0.02em; margin:0 0 6px;">
-                <i class="fa-solid fa-pen-to-square" style="color:#3b82f6; margin-right:10px;"></i>
+            <h1 style="font-size:26px; font-weight:700; color:#1e293b; letter-spacing:-0.02em; margin:0 0 6px;">
+                <i class="fa-solid fa-pen-to-square" style="color:var(--hc-green); margin-right:10px;"></i>
                 Editar Pedido
             </h1>
-            <p style="font-size:15px; color:#93c5fd; margin:0;">
+            <p style="font-size:15px; color:#64748b; margin:0;">
                 Factura:
-                <strong style="color:#f0f4ff;">{{ $order->invoice_number }}</strong>
+                <strong style="color:#1e293b;">{{ $order->invoice_number }}</strong>
             </p>
         </div>
         <a href="{{ route('orders.index') }}" class="btn-secondary">
@@ -68,8 +68,8 @@ $flow         = $statusFlow[$order->status] ?? null;
 
     <!-- ── TIMELINE DE ESTADOS ────────────────────────────────────────────── -->
     <div class="hc-card" style="padding:24px; margin-bottom:24px;">
-        <p style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#93c5fd; margin:0 0 16px;">
-            <i class="fa-solid fa-route" style="margin-right:6px;"></i>Flujo del pedido
+        <p style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#64748b; margin:0 0 16px;">
+            <i class="fa-solid fa-route" style="margin-right:6px; color:var(--hc-green);"></i>Flujo del pedido
         </p>
         <div style="display:flex; align-items:flex-start;">
             @foreach($statusOrder as $i => $st)
@@ -93,10 +93,10 @@ $flow         = $statusFlow[$order->status] ?? null;
 
         <!-- Botón de avance de estado (si no es el final) -->
         @if($flow && $flow['next'])
-            <div style="margin-top:20px; padding:16px; background:rgba(59,130,246,0.07); border:1px solid rgba(59,130,246,0.2); border-radius:12px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+            <div style="margin-top:20px; padding:16px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
                 <div>
-                    <p style="font-size:13px; color:#93c5fd; margin:0 0 2px;">Siguiente paso disponible:</p>
-                    <p style="font-size:15px; font-weight:700; color:#f0f4ff; margin:0;">
+                    <p style="font-size:13px; color:#64748b; margin:0 0 2px;">Siguiente paso disponible:</p>
+                    <p style="font-size:15px; font-weight:700; color:#1e293b; margin:0;">
                         <i class="fa-solid {{ $flow['icon'] }}" style="color:{{ $flow['color'] }}; margin-right:8px;"></i>
                         Cambiar a <strong style="color:{{ $flow['color'] }};">{{ $flow['nextLabel'] }}</strong>
                     </p>
@@ -120,7 +120,7 @@ $flow         = $statusFlow[$order->status] ?? null;
                 </form>
             </div>
         @else
-            <div style="margin-top:16px; padding:12px 18px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:10px; font-size:14px; color:#10b981;">
+            <div style="margin-top:16px; padding:12px 18px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; font-size:14px; color:var(--hc-green);">
                 <i class="fa-solid fa-circle-check" style="margin-right:8px;"></i>
                 Este pedido ya fue entregado. Estado final alcanzado.
             </div>
@@ -129,8 +129,8 @@ $flow         = $statusFlow[$order->status] ?? null;
 
     <!-- ── FORMULARIO DATOS DEL PEDIDO ───────────────────────────────────── -->
     <div class="hc-card" style="padding:32px;">
-        <p style="font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#93c5fd; margin:0 0 24px;">
-            <i class="fa-solid fa-file-lines" style="margin-right:6px;"></i>Datos del pedido
+        <p style="font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#64748b; margin:0 0 24px;">
+            <i class="fa-solid fa-file-lines" style="margin-right:6px; color:var(--hc-green);"></i>Datos del pedido
         </p>
 
         <!-- Errores de validación -->
@@ -154,7 +154,7 @@ $flow         = $statusFlow[$order->status] ?? null;
 
                 <!-- Número de factura (solo lectura) -->
                 <div>
-                    <label style="display:block; font-size:12px; font-weight:600; color:#93c5fd; margin-bottom:8px; letter-spacing:0.06em;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:8px; letter-spacing:0.06em; text-transform:uppercase;">
                         <i class="fa-solid fa-hashtag" style="margin-right:4px;"></i>NÚMERO DE FACTURA
                     </label>
                     <input type="text" value="{{ $order->invoice_number }}" readonly
@@ -163,7 +163,7 @@ $flow         = $statusFlow[$order->status] ?? null;
 
                 <!-- Nombre del cliente -->
                 <div>
-                    <label style="display:block; font-size:12px; font-weight:600; color:#93c5fd; margin-bottom:8px; letter-spacing:0.06em;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:8px; letter-spacing:0.06em; text-transform:uppercase;">
                         <i class="fa-solid fa-user" style="margin-right:4px;"></i>NOMBRE / RAZÓN SOCIAL *
                     </label>
                     <input type="text" name="customer_name" required
@@ -173,7 +173,7 @@ $flow         = $statusFlow[$order->status] ?? null;
 
                 <!-- Número de cliente -->
                 <div>
-                    <label style="display:block; font-size:12px; font-weight:600; color:#93c5fd; margin-bottom:8px; letter-spacing:0.06em;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:8px; letter-spacing:0.06em; text-transform:uppercase;">
                         <i class="fa-solid fa-id-card" style="margin-right:4px;"></i>NÚMERO DE CLIENTE *
                     </label>
                     <input type="text" name="customer_number" required
@@ -183,7 +183,7 @@ $flow         = $statusFlow[$order->status] ?? null;
 
                 <!-- Dirección -->
                 <div>
-                    <label style="display:block; font-size:12px; font-weight:600; color:#93c5fd; margin-bottom:8px; letter-spacing:0.06em;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:8px; letter-spacing:0.06em; text-transform:uppercase;">
                         <i class="fa-solid fa-location-dot" style="margin-right:4px;"></i>DIRECCIÓN DE ENTREGA *
                     </label>
                     <input type="text" name="delivery_address" required
@@ -193,7 +193,7 @@ $flow         = $statusFlow[$order->status] ?? null;
 
                 <!-- Fecha y hora -->
                 <div>
-                    <label style="display:block; font-size:12px; font-weight:600; color:#93c5fd; margin-bottom:8px; letter-spacing:0.06em;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:8px; letter-spacing:0.06em; text-transform:uppercase;">
                         <i class="fa-solid fa-clock" style="margin-right:4px;"></i>FECHA Y HORA *
                     </label>
                     <input type="datetime-local" name="order_datetime" required
@@ -204,13 +204,13 @@ $flow         = $statusFlow[$order->status] ?? null;
 
                 <!-- Estado (solo informativo, no se puede cambiar desde aquí) -->
                 <div>
-                    <label style="display:block; font-size:12px; font-weight:600; color:#93c5fd; margin-bottom:8px; letter-spacing:0.06em;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:8px; letter-spacing:0.06em; text-transform:uppercase;">
                         <i class="fa-solid fa-circle-dot" style="margin-right:4px;"></i>ESTADO ACTUAL
                     </label>
                     @php $sc = ['Ordered'=>['badge-ordered','Ordenado'],'In process'=>['badge-in-process','En proceso'],'In route'=>['badge-in-route','En ruta'],'Delivered'=>['badge-delivered','Entregado']][$order->status] ?? ['badge-archived','—']; @endphp
-                    <div class="hc-input" style="display:flex; align-items:center; opacity:0.7; cursor:not-allowed;">
+                    <div class="hc-input" style="display:flex; align-items:center; background:#f8fafc; cursor:not-allowed;">
                         <span class="badge {{ $sc[0] }}">{{ $sc[1] }}</span>
-                        <span style="font-size:12px; color:#3d5a99; margin-left:10px;">Usa el botón de arriba para avanzar</span>
+                        <span style="font-size:12px; color:#94a3b8; margin-left:10px;">Usa el botón de arriba para avanzar</span>
                     </div>
                     <!-- Campo oculto para no romper la validación del controlador -->
                     <input type="hidden" name="status" value="{{ $order->status }}">
@@ -218,7 +218,7 @@ $flow         = $statusFlow[$order->status] ?? null;
 
                 <!-- Notas (ancho completo) -->
                 <div style="grid-column: 1 / -1;">
-                    <label style="display:block; font-size:12px; font-weight:600; color:#93c5fd; margin-bottom:8px; letter-spacing:0.06em;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:8px; letter-spacing:0.06em; text-transform:uppercase;">
                         <i class="fa-solid fa-note-sticky" style="margin-right:4px;"></i>NOTAS
                     </label>
                     <textarea name="notes" rows="4" class="hc-input" style="resize:vertical;">{{ old('notes', $order->notes) }}</textarea>
