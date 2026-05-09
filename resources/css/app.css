@@ -1,0 +1,291 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+/* ═══════════════════════════════════════════════════════════
+   TOKENS DE DISEÑO — HALCÓN PAQUETERÍA
+   Paleta: verde oscuro + naranja + blanco + navy navbar
+═══════════════════════════════════════════════════════════ */
+:root {
+    /* Fondo de página */
+    --hc-page-bg:      #f0f4f8;
+
+    /* Navbar */
+    --hc-nav-bg:       #0f172a;
+    --hc-nav-border:   #1e293b;
+
+    /* Colores de marca */
+    --hc-green:        #166534;
+    --hc-green-mid:    #15803d;
+    --hc-green-light:  #22c55e;
+    --hc-orange:       #ea580c;
+    --hc-orange-light: #fb923c;
+
+    /* Cards */
+    --hc-card-bg:      #ffffff;
+    --hc-card-header:  #166534;
+    --hc-card-border:  #d1d5db;
+
+    /* Texto */
+    --hc-text:         #1e293b;
+    --hc-text-muted:   #475569;
+    --hc-text-light:   #94a3b8;
+
+    /* Estados */
+    --hc-success:      #16a34a;
+    --hc-warning:      #d97706;
+    --hc-danger:       #dc2626;
+    --hc-info:         #2563eb;
+    --hc-violet:       #7c3aed;
+}
+
+/* ─── Animaciones ─────────────────────────────────────────────────────────── */
+@keyframes fadeInUp {
+    from { opacity:0; transform:translateY(16px); }
+    to   { opacity:1; transform:translateY(0); }
+}
+@keyframes pulseGlow {
+    0%,100% { box-shadow: 0 0 6px rgba(34,197,94,0.4); }
+    50%      { box-shadow: 0 0 18px rgba(34,197,94,0.8); }
+}
+
+/* ─── Base ────────────────────────────────────────────────────────────────── */
+html { scroll-behavior:smooth; }
+body {
+    margin:0;
+    min-height:100vh;
+    font-family:'Inter', ui-sans-serif, system-ui, sans-serif;
+    color: var(--hc-text);
+    background: var(--hc-page-bg);
+}
+a { text-decoration:none; }
+::-webkit-scrollbar          { width:7px; }
+::-webkit-scrollbar-track    { background:#f0f4f8; }
+::-webkit-scrollbar-thumb    { background:#94a3b8; border-radius:4px; }
+::-webkit-scrollbar-thumb:hover { background:#475569; }
+
+/* ─── NAVBAR ─────────────────────────────────────────────────────────────── */
+.hc-navbar {
+    background: var(--hc-nav-bg);
+    border-bottom: 2px solid var(--hc-green);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.hc-nav-link {
+    color: #cbd5e1;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+.hc-nav-link:hover {
+    color: #ffffff;
+    background: rgba(22,101,52,0.4);
+}
+.hc-nav-link.active {
+    color: #ffffff;
+    background: var(--hc-green);
+}
+.hc-role-badge {
+    background: rgba(22,101,52,0.3);
+    border: 1px solid rgba(34,197,94,0.4);
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #86efac;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* ─── CARDS ───────────────────────────────────────────────────────────────── */
+.hc-card {
+    background: var(--hc-card-bg);
+    border: 1px solid var(--hc-card-border);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    animation: fadeInUp 0.35s ease forwards;
+    overflow: hidden;
+}
+/* Variante con encabezado verde */
+.hc-card-header {
+    background: var(--hc-green);
+    color: #ffffff;
+    padding: 18px 24px;
+    border-bottom: 3px solid var(--hc-orange);
+}
+.hc-card-body {
+    padding: 24px;
+    color: var(--hc-text);
+}
+
+/* Card secundaria (sección interna) */
+.hc-section {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+/* ─── BOTONES ─────────────────────────────────────────────────────────────── */
+.btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--hc-green);
+    color: #ffffff !important;
+    border: none; border-radius: 8px;
+    padding: 10px 22px; font-weight: 600; font-size: 14px;
+    cursor: pointer; transition: all 0.25s; text-decoration: none; line-height:1.4;
+}
+.btn-primary:hover {
+    background: #14532d;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(22,101,52,0.35);
+}
+
+.btn-orange {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--hc-orange);
+    color: #ffffff !important;
+    border: none; border-radius: 8px;
+    padding: 10px 22px; font-weight: 600; font-size: 14px;
+    cursor: pointer; transition: all 0.25s; text-decoration: none; line-height:1.4;
+}
+.btn-orange:hover {
+    background: #c2410c;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(234,88,12,0.35);
+}
+
+.btn-secondary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: transparent;
+    color: var(--hc-text) !important;
+    border: 1px solid #cbd5e1; border-radius: 8px;
+    padding: 10px 22px; font-weight: 600; font-size: 14px;
+    cursor: pointer; transition: all 0.25s; text-decoration: none; line-height:1.4;
+}
+.btn-secondary:hover { background: #f1f5f9; border-color: #94a3b8; }
+
+.btn-danger {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: transparent; color: #dc2626 !important;
+    border: 1px solid #fca5a5; border-radius: 8px;
+    padding: 10px 22px; font-weight: 600; font-size: 14px;
+    cursor: pointer; transition: all 0.25s; text-decoration: none; line-height:1.4;
+}
+.btn-danger:hover { background: #fef2f2; border-color: #dc2626; }
+
+.btn-success {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #16a34a; color: #ffffff !important;
+    border: none; border-radius: 8px;
+    padding: 10px 22px; font-weight: 600; font-size: 14px;
+    cursor: pointer; transition: all 0.25s; text-decoration: none; line-height:1.4;
+}
+.btn-success:hover { background: #15803d; transform: translateY(-1px); }
+
+.btn-warning {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: transparent; color: #d97706 !important;
+    border: 1px solid #fcd34d; border-radius: 8px;
+    padding: 10px 22px; font-weight: 600; font-size: 14px;
+    cursor: pointer; transition: all 0.25s; text-decoration: none; line-height:1.4;
+}
+.btn-warning:hover { background: #fffbeb; border-color: #d97706; }
+
+.btn-sm { padding:6px 14px !important; font-size:12px !important; border-radius:6px !important; }
+
+/* ─── INPUTS — texto NEGRO visible siempre ───────────────────────────────── */
+.hc-input {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    color: #1e293b;          /* ← texto NEGRO para que el usuario vea lo que escribe */
+    padding: 10px 16px;
+    width: 100%;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.2s;
+    outline: none;
+    box-sizing: border-box;
+}
+.hc-input:focus {
+    border-color: var(--hc-green-mid);
+    box-shadow: 0 0 0 3px rgba(21,128,61,0.15);
+}
+.hc-input::placeholder { color: #9ca3af; }
+.hc-input option        { background:#ffffff; color:#1e293b; }
+/* También aplica a inputs nativos dentro de forms */
+input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+textarea, select {
+    color: #1e293b !important;
+}
+
+/* ─── TABLA ───────────────────────────────────────────────────────────────── */
+.hc-table { width:100%; border-collapse:collapse; }
+.hc-table thead   { background: var(--hc-green); }
+.hc-table th {
+    padding: 13px 18px;
+    text-align: left; font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: #ffffff; border-bottom: 3px solid var(--hc-orange);
+}
+.hc-table td {
+    padding: 13px 18px; font-size: 14px;
+    color: var(--hc-text);
+    border-bottom: 1px solid #e2e8f0;
+}
+.hc-table tbody tr:nth-child(even) { background: #f8fafc; }
+.hc-table tbody tr:nth-child(odd)  { background: #ffffff; }
+.hc-table tbody tr { transition: background 0.15s; }
+.hc-table tbody tr:hover { background: #f0fdf4 !important; }
+
+/* ─── BADGES DE ESTADO ────────────────────────────────────────────────────── */
+.badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 20px;
+    font-size: 12px; font-weight: 700; border: 1px solid;
+    white-space: nowrap;
+}
+.badge-ordered    { background:#dbeafe; color:#1d4ed8; border-color:#93c5fd; }
+.badge-in-process { background:#fef3c7; color:#92400e; border-color:#fcd34d; }
+.badge-in-route   { background:#ede9fe; color:#6d28d9; border-color:#c4b5fd; }
+.badge-delivered  { background:#dcfce7; color:#166534; border-color:#86efac; }
+.badge-archived   { background:#f1f5f9; color:#64748b; border-color:#cbd5e1; }
+
+/* ─── ALERTAS ─────────────────────────────────────────────────────────────── */
+.hc-alert-success {
+    background:#f0fdf4; border:1px solid #86efac; border-radius:8px;
+    color:#166534; padding:12px 18px; font-size:14px; font-weight:500;
+}
+.hc-alert-error {
+    background:#fef2f2; border:1px solid #fca5a5; border-radius:8px;
+    color:#dc2626; padding:12px 18px; font-size:14px; font-weight:500;
+}
+
+/* ─── DIVISOR ─────────────────────────────────────────────────────────────── */
+.hc-divider {
+    height:1px;
+    background: linear-gradient(90deg,transparent,var(--hc-green-mid),transparent);
+    border:none; margin:24px 0;
+}
+
+/* ─── COMPATIBILIDAD (clases antiguas) ───────────────────────────────────── */
+.panel-table      { width:100%; border-collapse:collapse; }
+.panel-table th   { padding:12px 16px; text-align:left; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#fff; background:var(--hc-green); border-bottom:3px solid var(--hc-orange); }
+.panel-table td   { padding:12px 16px; font-size:14px; color:var(--hc-text); border-bottom:1px solid #e2e8f0; }
+.panel-table tbody tr:nth-child(even) { background:#f8fafc; }
+.panel-table tbody tr:hover           { background:#f0fdf4 !important; }
+.page-action-link   { color:var(--hc-green-mid); font-size:13px; font-weight:600; }
+.page-action-link:hover { color:var(--hc-green); }
+.card-panel         { color:var(--hc-text); }
+.bg-surface         { background:var(--hc-nav-bg); }
+.bg-surface-soft    { background:#f8fafc; }
